@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full bg-black">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANTERVIEW | EVENT HORIZON [PRO]</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@100;400;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-cyan: #00f5ff;
+            --neon-pink: #ff0055;
+            --neon-amber: #ff9900;
+            --void: #030305;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* RESET & BASE */
+        body { font-family: 'Space Grotesk', sans-serif; background-color: var(--void); color: #fff; overflow: hidden; cursor: crosshair; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* CRT SCANLINE EFFECT */
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            opacity: 0.6;
+        }
+
+        /* GLASSMORPHISM */
+        .glass-panel {
+            background: rgba(10, 11, 15, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            box-shadow: 0 0 40px rgba(0, 245, 255, 0.05), inset 0 0 20px rgba(255,255,255,0.02);
+        }
+
+        /* UI ELEMENTS */
+        .sci-input {
+            width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+            padding: 16px; border-radius: 4px; color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace; font-size: 14px; outline: none; transition: 0.3s;
+        }
+        .sci-input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 245, 255, 0.15); }
+        
+        .sci-btn {
+            background: var(--neon-cyan); color: #000; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 2px; padding: 16px; border-radius: 4px; transition: 0.2s;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
+        }
+        .sci-btn:hover { background: #fff; box-shadow: 0 0 30px var(--neon-cyan); }
+        .sci-btn:active { transform: scale(0.98); }
+
+        /* LOCKED FEATURE */
+        .locked-option { opacity: 0.5; cursor: not-allowed; position: relative; border: 1px solid #333; }
+        .locked-badge { position: absolute; right: 10px; top: 10px; font-size: 9px; background: var(--neon-pink); color: white; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
+
+        /* ANIMATIONS */
+        .msg-enter { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+        .typing-cursor::after { content: '█'; animation: blink 0.8s infinite; color: var(--neon-cyan); margin-left: 4px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* STRESS BAR */
+        .stress-container { width: 100%; height: 4px; background: #333; margin-top: 8px; position: relative; overflow: hidden; }
+        .stress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-amber), var(--neon-pink)); width: 0%; transition: width 0.5s ease; }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen w-screen">
+
+    <div class="scanlines"></div>
+    <canvas id="starfield" class="fixed inset-0 z-0 opacity-40"></canvas>
+
+    <div class="fixed top-6 right-6 z-50 flex gap-4">
+        <button onclick="toggleAudio()" id="audio-btn" class="text-xs font-mono text-cyan-500 border border-cyan-500/30 px-3 py-1 hover:bg-cyan-500/10 transition-colors">[AUDIO: OFF]</button>
+    </div>
+
+    <section id="setup-view" class="relative z-10 w-full max-w-4xl flex gap-8 p-4">
+        <div class="flex-1 glass-panel p-10 rounded-lg relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
+            <h1 class="text-5xl font-bold tracking-tighter mb-2">ANTERVIEW<span class="text-cyan-400">.OS</span></h1>
+            <p class="text-xs mono text-slate-500 mb-8 tracking-[0.2em]">NEURAL LINK STATUS: ONLINE</p>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Target Vector (Job Title)</label>
+                    <input id="job-title" type="text" placeholder="e.g. Senior Solidity Engineer" class="sci-input">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer hover:bg-cyan-500/10 transition-colors" onclick="selectMode(this, 'free')">
+                        <div class="text-cyan-400 font-bold text-sm mb-1">STANDARD PROTOCOL</div>
+                        <div class="text-[10px] text-slate-400">Persona: Herman (Brutal)</div>
+                    </div>
+                    <div class="p-4 border border-white/10 bg-black/40 rounded locked-option">
+                        <div class="locked-badge">PRO ($9)</div>
+                        <div class="text-slate-500 font-bold text-sm mb-1">FAANG SIMULATION</div>
+                        <div class="text-[10px] text-slate-600">Persona: Google L5 Committee</div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Tech Stack</label>
+                    <select id="stack" class="sci-input">
+                        <option value="Python & AWS">Python / AWS</option>
+                        <option value="React & Node">React / Node.js</option>
+                        <option value="Rust & Solana">Rust / Solana</option>
+                    </select>
+                </div>
+
+                <button onclick="bootSystem()" class="sci-btn w-full mt-4 flex justify-center items-center gap-2">
+                    <span>INITIALIZE</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="w-64 glass-panel p-6 rounded-lg hidden md:block">
+            <div class="text-[10px] mono text-cyan-500 mb-4 border-b border-cyan-500/20 pb-2">SYSTEM LOGS</div>
+            <div id="boot-log" class="text-[9px] mono text-slate-400 space-y-1 opacity-70">
+                <div>> Kernel loaded...</div>
+            </div>
+        </div>
+    </section>
+
+    <main id="chat-view" class="fixed inset-0 z-20 hidden flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-5xl h-[85vh] glass-panel rounded-lg flex overflow-hidden shadow-2xl border-t border-cyan-500/50">
+            
+            <div class="w-64 bg-black/40 border-r border-white/5 p-6 flex flex-col gap-6 hidden md:flex">
+                <div>
+                    <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Stress Monitor</div>
+                    <div class="stress-container rounded-full">
+                        <div id="stress-bar" class="stress-fill"></div>
+                    </div>
+                    <div class="flex justify-between mt-1 text-[8px] mono text-slate-500">
+                        <span>CALM</span><span>PANIC</span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Question Progress</div>
+                    <div class="text-4xl font-bold text-white mono" id="q-counter">01<span class="text-lg text-slate-600">/05</span></div>
+                </div>
+
+                <div class="mt-auto">
+                    <div class="p-3 bg-red-500/10 border border-red-500/20 rounded mb-2">
+                        <div class="text-[9px] text-red-400 font-bold mb-1">LIVE FEEDBACK</div>
+                        <div class="text-[8px] text-red-300 opacity-70">"Stop hesitating. Your typing speed suggests uncertainty."</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col relative bg-gradient-to-b from-transparent to-black/20">
+                <div class="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-white/2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></div>
+                        <span class="text-[10px] mono text-emerald-400 tracking-widest">ENCRYPTED CONNECTION</span>
+                    </div>
+                    <div class="text-[10px] mono text-slate-500">SESSION ID: <span class="text-white">#X99-ALPHA</span></div>
+                </div>
+
+                <div id="chat-scroll" class="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar"></div>
+
+                <div class="p-6 border-t border-white/5 bg-black/40 relative">
+                    <input id="user-input" type="text" placeholder="Type your response..." class="w-full bg-white/5 border border-white/10 rounded p-4 text-sm text-white focus:border-cyan-500/50 outline-none mono transition-all" autocomplete="off" onkeypress="if(event.key==='Enter') sendMsg()">
+                    <div id="typing-indicator" class="absolute right-10 top-10 text-[10px] mono text-cyan-500 opacity-0 transition-opacity">AI PROCESSING...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section id="results-view" class="fixed inset-0 z-30 hidden bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="w-full max-w-3xl glass-panel rounded-lg p-10 border border-white/10 relative overflow-hidden">
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+                <div class="flex justify-between items-end border-b border-white/10 pb-6 mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight mb-2">EVALUATION COMPLETE</h2>
+                        <p class="text-xs mono text-slate-400">DATA UPLOADED TO CLOUD</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">HIREABILITY INDEX</div>
+                        <div id="final-score" class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">--%</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-8 mb-8">
+                    <div class="col-span-2 space-y-4">
+                        <div class="text-sm text-slate-300 leading-relaxed font-light p-4 bg-white/5 rounded border border-white/5" id="final-summary">
+                            Calculating trajectory...
+                        </div>
+                        <div id="affiliate-container"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase">Improvement Areas</div>
+                        <ul id="tips-list" class="text-xs text-slate-400 space-y-2 mono"></ul>
+                        
+                        <button onclick="downloadReport()" class="w-full mt-6 border border-white/20 hover:bg-white/5 text-xs text-white py-3 rounded uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end pt-6 border-t border-white/5">
+                    <button onclick="location.reload()" class="sci-btn text-xs px-8 py-3">NEW SESSION</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        /* =========================================
+           SYSTEM: AUDIO ENGINE (Synthesized SFX)
+           ========================================= */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioEnabled = false;
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('audio-btn').innerText = audioEnabled ? "[AUDIO: ON]" : "[AUDIO: OFF]";
+            if(audioEnabled) playTone(440, 'sine', 0.1); // Test beep
+        }
+
+        function playTone(freq, type, duration) {
+            if(!audioEnabled) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function sfxType() { playTone(800 + Math.random()*200, 'square', 0.05); } // Typing sound
+        function sfxSend() { playTone(400, 'sine', 0.3); playTone(600, 'sine', 0.3); } // Send sound
+        function sfxAlert() { playTone(200, 'sawtooth', 0.4); } // Alert sound
+
+        /* =========================================
+           SYSTEM: PARTICLE PHYSICS (Starfield)
+           ========================================= */
+        const cvs = document.getElementById('starfield');
+        const ctx = cvs.getContext('2d');
+        let w, h, stars = [], mouse = {x:0, y:0};
+
+        function resize() { w = cvs.width = window.innerWidth; h = cvs.height = window.innerHeight; initStars(); }
+        class Star {
+            constructor() { this.x = Math.random()*w; this.y = Math.random()*h; this.z = Math.random()*2; this.size = Math.random()*1.5; }
+            update() {
+                // Parallax effect based on mouse
+                this.x += (mouse.x - w/2) * 0.0005 * this.z;
+                this.y += (mouse.y - h/2) * 0.0005 * this.z;
+                if(this.x<0) this.x=w; if(this.x>w) this.x=0; if(this.y<0) this.y=h; if(this.y>h) this.y=0;
+            }
+            draw() { ctx.fillStyle=`rgba(255,255,255,${0.3*this.z})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
+        }
+        function initStars() { stars = []; for(let i=0; i<150; i++) stars.push(new Star()); }
+        function animate() { ctx.clearRect(0,0,w,h); stars.forEach(s=>{s.update(); s.draw()}); requestAnimationFrame(animate); }
+        
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        resize(); animate();
+
+        /* =========================================
+           SYSTEM: GAME LOGIC
+           ========================================= */
+        let history = [], currentQ = 1, maxQ = 5;
+        let stress = 20; // 0 to 100
+
+        // Boot Animation
+        function log(msg) {
+            const el = document.getElementById('boot-log');
+            el.innerHTML += `<div>> ${msg}</div>`;
+        }
+        setTimeout(() => log("Loading assets..."), 500);
+        setTimeout(() => log("Connecting to neural net..."), 1200);
+
+        function bootSystem() {
+            playTone(100, 'sawtooth', 1.0); // Boot sound
+            const tl = gsap.timeline();
+            tl.to("#setup-view", { opacity: 0, scale: 0.9, duration: 0.5, onComplete: () => {
+                document.getElementById('setup-view').style.display = 'none';
+                document.getElementById('chat-view').classList.remove('hidden');
+                initInterview();
+            }})
+            .from("#chat-view", { opacity: 0, scale: 1.05, duration: 0.8 });
+        }
+
+        function initInterview() {
+            const job = document.getElementById('job-title').value || "Engineer";
+            const stack = document.getElementById('stack').value;
+            
+            const sysPrompt = `You are Herman, a brutal technical interviewer. Job: ${job}. Stack: ${stack}. 
+            RULES: 
+            1. Be harsh. If answer is vague, roast them.
+            2. Ask ONE hard question. 
+            3. Max 5 questions total.
+            4. If the user seems stressed (short answers), pressure them.
+            5. End with [END].`;
+
+            history.push({role: "system", content: sysPrompt});
+            callAI("Start interview.");
+        }
+
+        async function sendMsg() {
+            const input = document.getElementById('user-input');
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            sfxSend();
+            addBubble("CANDIDATE", txt, true);
+            input.value = ""; input.disabled = true;
+            document.getElementById('typing-indicator').style.opacity = 1;
+            
+            // Gamification: Typing speed calculation could go here to affect stress
+            updateStress(Math.random() * 10 - 2); // Random stress fluctuation
+
+            history.push({role: "user", content: txt});
+            currentQ++;
+            if(currentQ <= maxQ) document.getElementById('q-counter').innerHTML = `0${currentQ}<span class="text-lg text-slate-600">/05</span>`;
+
+            await callAI(txt);
+        }
+
+        async function callAI(msg) {
+            try {
+                // NETLIFY CALL
+                const res = await fetch("/.netlify/functions/chat", {
+                    method: "POST",
+                    body: JSON.stringify({ messages: history, stressLevel: stress })
+                });
+                const data = await res.json();
+                
+                if(data.error) throw new Error(data.error);
+                
+                const reply = data.choices[0].message.content;
+                
+                document.getElementById('typing-indicator').style.opacity = 0;
+                input = document.getElementById('user-input');
+                input.disabled = false; input.focus();
+
+                if(reply.includes("[END]")) {
+                    endGame();
+                } else {
+                    history.push({role: "assistant", content: reply});
+                    typewriter(reply);
+                    // Increase stress if AI is long-winded
+                    if(reply.length > 200) updateStress(10);
+                }
+
+            } catch(e) {
+                console.error(e);
+                sfxAlert();
+                addBubble("SYSTEM", "CONNECTION ERROR: Check Netlify API Key.", false);
+            }
+        }
+
+        function addBubble(role, text, isUser) {
+            const scroll = document.getElementById('chat-scroll');
+            const div = document.createElement('div');
+            div.className = `flex w-full ${isUser?'justify-end':'justify-start'} msg-enter mb-6`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = isUser 
+                ? "max-w-[80%] bg-cyan-900/30 border border-cyan-500/30 p-4 rounded-tl-xl rounded-bl-xl rounded-br-xl text-cyan-50"
+                : "max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300";
+
+            bubble.innerHTML = `
+                <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase mb-2 ${isUser?'text-cyan-400':'text-pink-400'}">${role}</div>
+                <div class="text-sm leading-relaxed ${!isUser?'mono':''}">${text}</div>
+            `;
+            
+            div.appendChild(bubble);
+            scroll.appendChild(div);
+            scroll.scrollTop = scroll.scrollHeight;
+        }
+
+        function typewriter(text) {
+            const scroll = document.getElementById('chat-scroll');
+            const div = document.createElement('div');
+            div.className = `flex w-full justify-start msg-enter mb-6`;
+            div.innerHTML = `
+                <div class="max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+                    <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase text-pink-400 mb-2">HERMAN</div>
+                    <div class="text-sm leading-relaxed mono typing-target"></div>
+                </div>`;
+            scroll.appendChild(div);
+            
+            const target = div.querySelector('.typing-target');
+            target.classList.add('typing-cursor');
+            let i = 0;
+            
+            function type() {
+                if(i < text.length) { 
+                    target.textContent += text.charAt(i); 
+                    i++; 
+                    scroll.scrollTop = scroll.scrollHeight;
+                    if(i % 3 === 0) sfxType(); // Sound every 3 chars
+                    setTimeout(type, 15); 
+                } else { 
+                    target.classList.remove('typing-cursor'); 
+                }
+            }
+            type();
+        }
+
+        function updateStress(amount) {
+            stress = Math.max(0, Math.min(100, stress + amount));
+            const bar = document.getElementById('stress-bar');
+            bar.style.width = `${stress}%`;
+            // Change color based on stress
+            if(stress < 50) bar.style.background = "var(--neon-cyan)";
+            else if(stress < 80) bar.style.background = "var(--neon-amber)";
+            else bar.style.background = "var(--neon-pink)";
+        }
+
+        /* =========================================
+           SYSTEM: RESULTS & MONETIZATION
+           ========================================= */
+        function endGame() {
+            gsap.to("#chat-view", { opacity: 0, duration: 1, onComplete: () => {
+                document.getElementById('chat-view').style.display = 'none';
+                const view = document.getElementById('results-view');
+                view.classList.remove('hidden');
+                gsap.from(view, { opacity: 0, duration: 1 });
+                generateReport();
+            }});
+        }
+
+        async function generateReport() {
+            const prompt = `Analyze interview. JSON format: {"score": 0-100, "summary": "text", "tips": ["tip1", "tip2", "tip3"]}`;
+            const res = await fetch("/.netlify/functions/chat", { method: "POST", body: JSON.stringify({ messages: [...history, {role: "system", content: prompt}] }) });
+            const data = await res.json();
+            const stats = JSON.parse(data.choices[0].message.content.replace(/```json|```/g, ""));
+
+            // Animate Score
+            let obj = { val: 0 };
+            gsap.to(obj, { val: stats.score, duration: 2, onUpdate: () => {
+                document.getElementById('final-score').innerText = Math.round(obj.val) + "%";
+            }});
+
+            document.getElementById('final-summary').innerText = stats.summary;
+            document.getElementById('tips-list').innerHTML = stats.tips.map(t => `<li>> ${t}</li>`).join('');
+
+            // SMART MONETIZATION INJECTION
+            const container = document.getElementById('affiliate-container');
+            let adLink = "https://www.tryexponent.com/?ref=YOUR_ID"; // Replace with your ID
+            let adText = "MASTER SYSTEM DESIGN";
+            let adSub = "Recommended Course";
+
+            if(stats.score >= 80) {
+                adLink = "https://resume.io/?ref=YOUR_ID";
+                adText = "OPTIMIZE YOUR RESUME";
+                adSub = "You're ready to apply. Don't get filtered.";
+            }
+
+            container.innerHTML = `
+                <a href="${adLink}" target="_blank" class="block group relative overflow-hidden rounded border border-cyan-500/30 bg-cyan-900/10 p-4 transition-all hover:bg-cyan-900/20 hover:border-cyan-500">
+                    <div class="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-cyan-500/20 blur-xl transition-all group-hover:bg-cyan-500/30"></div>
+                    <div class="relative flex items-center justify-between">
+                        <div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-cyan-400 mb-1">${adSub}</div>
+                            <div class="text-lg font-bold text-white group-hover:text-cyan-200">${adText} &rarr;</div>
+                        </div>
+                        <div class="h-8 w-8 rounded-full border border-cyan-500/50 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                    </div>
+                </a>
+            `;
+            
+            playTone(600, 'sine', 0.5); // Success sound
+        }
+
+        function downloadReport() {
+            const txt = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
+            const blob = new Blob([txt], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Anterview_Report_X99.txt';
+            a.click();
+        }
+    </script>
+</body>
+</html>
