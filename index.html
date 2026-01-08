@@ -101,7 +101,8 @@
                         <div class="text-cyan-400 font-bold text-sm mb-1">STANDARD PROTOCOL</div>
                         <div class="text-[10px] text-slate-400">Persona: Herman (Brutal)</div>
                     </div>
-                    <div class="p-4 border border-white/10 bg-black/40 rounded locked-option">
+                    
+                    <div id="pro-card" class="p-4 border border-white/10 bg-black/40 rounded locked-option transition-all duration-300">
                         <div class="locked-badge">PRO ($9)</div>
                         <div class="text-slate-500 font-bold text-sm mb-1">FAANG SIMULATION</div>
                         <div class="text-[10px] text-slate-600">Persona: Google L5 Committee</div>
@@ -221,23 +222,18 @@
 
     <div id="theme-dock" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-3 rounded-full glass-panel scale-90 opacity-60 hover:opacity-100 hover:scale-100 transition-all duration-300 backdrop-blur-md theme-scroll" style="max-width: 90vw; overflow-x: auto;">
         <span class="text-[9px] mono text-slate-500 hidden md:block pl-2">THEME_OS:</span>
-        
         <button onclick="setTheme('cyan')" class="w-8 h-8 rounded-full border border-cyan-500 bg-cyan-900/50 hover:bg-cyan-500 hover:shadow-[0_0_15px_#06b6d4] transition-all relative group">
             <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-cyan-500 text-cyan-500 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">CYBERPUNK</div>
         </button>
-
         <button onclick="setTheme('red')" class="w-8 h-8 rounded-full border border-red-600 bg-red-900/50 hover:bg-red-600 hover:shadow-[0_0_15px_#dc2626] transition-all relative group">
             <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-red-600 text-red-600 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">PREDATOR</div>
         </button>
-
         <button onclick="setTheme('green')" class="w-8 h-8 rounded-full border border-green-500 bg-green-900/50 hover:bg-green-500 hover:shadow-[0_0_15px_#22c55e] transition-all relative group">
             <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-green-500 text-green-500 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">MATRIX</div>
         </button>
-
         <button onclick="setTheme('amber')" class="w-8 h-8 rounded-full border border-amber-500 bg-amber-900/50 hover:bg-amber-500 hover:shadow-[0_0_15px_#f59e0b] transition-all relative group">
             <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-amber-500 text-amber-500 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">DEUS EX</div>
         </button>
-
         <button onclick="setTheme('white')" class="w-8 h-8 rounded-full border border-white bg-slate-800 hover:bg-white hover:shadow-[0_0_15px_#ffffff] transition-all relative group">
             <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-white text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">INSTITUTE</div>
         </button>
@@ -575,6 +571,29 @@
 
     <script>
         // ==========================================
+        //  UI LOGIC: MODE SELECTION (ADDED)
+        // ==========================================
+        let selectedMode = 'free';
+
+        function selectMode(el, mode) {
+            // 1. Reset all cards to "default" inactive state
+            document.querySelectorAll('#setup-view .border-cyan-500\\/50').forEach(c => {
+                c.className = "p-4 border border-white/10 bg-black/40 rounded cursor-pointer hover:bg-white/5 transition-colors";
+                // Reset text colors inside
+                if(c.querySelector('.text-cyan-400')) {
+                    c.querySelector('.text-cyan-400').className = "text-slate-400 font-bold text-sm mb-1";
+                }
+            });
+
+            // 2. Highlight the clicked card
+            el.className = "p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer transition-colors shadow-[0_0_15px_rgba(0,245,255,0.1)]";
+            el.querySelector('.font-bold').className = "text-cyan-400 font-bold text-sm mb-1";
+            
+            selectedMode = mode;
+            playTone(600, 'sine', 0.05);
+        }
+
+        // ==========================================
         //  GOD MODE / DEVELOPER CONSOLE LOGIC
         // ==========================================
         
@@ -610,11 +629,18 @@
 
         passwordInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                if (passwordInput.value === 'geper') {
+                const code = passwordInput.value.trim();
+                
+                if (code === 'geper') {
                     activateGodMode();
-                } else {
+                } 
+                else if (code === 'freecourse') { // CHEAT CODE INJECTED HERE
+                    unlockPro();
+                }
+                else {
                     errorMsg.style.display = 'block';
                     passwordInput.style.borderBottom = '1px solid red';
+                    playTone(150, 'sawtooth', 0.3); // Error buzz
                 }
             }
         });
@@ -629,6 +655,38 @@
             document.body.style.fontFamily = "'Courier New', monospace";
             alert("🔓 GOD MODE UNLOCKED: Network Monitor Active");
             console.log("Welcome back, Creator.");
+        }
+
+        // CHEAT CODE FUNCTIONALITY
+        function unlockPro() {
+            consoleOverlay.style.display = 'none';
+            const card = document.getElementById('pro-card');
+            const badge = card.querySelector('.locked-badge');
+            
+            // 1. Visual Override (Make it look Premium)
+            // Remove "Locked" styles
+            card.classList.remove('locked-option', 'bg-black/40', 'border-white/10');
+            // Add "Unlocked/Premium" styles
+            card.classList.add('cursor-pointer', 'border-purple-500', 'bg-purple-900/20', 'hover:bg-purple-900/40');
+            
+            // 2. Update Text & Badge
+            badge.innerText = "UNLOCKED";
+            badge.style.backgroundColor = "#a855f7"; // Purple
+            badge.style.color = "#fff";
+            
+            // Change title color to purple to signify premium
+            const title = card.querySelector('.text-slate-500');
+            if(title) title.classList.replace('text-slate-500', 'text-purple-400');
+            
+            // 3. Add Click Handler to enable selection
+            card.setAttribute('onclick', "selectMode(this, 'pro')");
+            
+            // 4. Success Audio Sequence
+            playTone(400, 'square', 0.1);
+            setTimeout(() => playTone(600, 'square', 0.1), 100);
+            setTimeout(() => playTone(800, 'square', 0.2), 200);
+
+            alert("🔓 CHEAT CODE ACCEPTED: FAANG SIMULATION UNLOCKED");
         }
     </script>
 
