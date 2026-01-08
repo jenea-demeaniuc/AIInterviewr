@@ -18,8 +18,6 @@
       --glass:rgba(255,255,255,0.03);
       --border:rgba(255,255,255,0.1);
     }
-
-    /* RESET & BASE */
     body{
       font-family:'Space Grotesk',sans-serif;
       background-color:var(--void);
@@ -29,8 +27,6 @@
       transition:background-color .5s;
     }
     .mono{font-family:'JetBrains Mono',monospace;}
-
-    /* CRT SCANLINES */
     .scanlines{
       position:fixed;top:0;left:0;width:100%;height:100%;
       pointer-events:none;z-index:9999;
@@ -40,8 +36,6 @@
       background-size:100% 2px, 3px 100%;
       opacity:.6;
     }
-
-    /* GLASS */
     .glass-panel{
       background:rgba(10,11,15,.85);
       backdrop-filter:blur(20px);
@@ -49,8 +43,6 @@
       border:1px solid var(--border);
       box-shadow:0 0 40px rgba(0,245,255,.05), inset 0 0 20px rgba(255,255,255,.02);
     }
-
-    /* INPUT / BTN */
     .sci-input{
       width:100%;
       background:rgba(0,0,0,.4);
@@ -76,23 +68,16 @@
     }
     .sci-btn:hover{background:#fff;box-shadow:0 0 30px var(--neon-cyan);}
     .sci-btn:active{transform:scale(.98);}
-
-    /* LOCKED FEATURE */
     .locked-option{opacity:.5;cursor:not-allowed;position:relative;border:1px solid #333;}
     .locked-badge{position:absolute;right:10px;top:10px;font-size:9px;background:var(--neon-pink);color:#fff;padding:2px 6px;border-radius:2px;font-weight:bold;}
-
-    /* ANIMATIONS */
     .msg-enter{animation:slideUp .4s cubic-bezier(.16,1,.3,1) forwards;opacity:0;transform:translateY(20px);}
     @keyframes slideUp{to{opacity:1;transform:translateY(0);}}
     .typing-cursor::after{content:'█';animation:blink .8s infinite;color:var(--neon-cyan);margin-left:4px;}
     @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
-
-    /* STRESS */
     .stress-container{width:100%;height:4px;background:#333;margin-top:8px;position:relative;overflow:hidden;}
     .stress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-amber),var(--neon-pink));width:0%;transition:width .5s ease;}
     .theme-scroll::-webkit-scrollbar{height:0;background:transparent;}
 
-    /* TOASTS */
     #toast-stack{
       position:fixed;top:18px;left:50%;transform:translateX(-50%);
       z-index:10050;display:flex;flex-direction:column;gap:10px;
@@ -127,7 +112,6 @@
     .toast.ok .badge{color:#10b981;border-color:rgba(16,185,129,.35);}
     .toast.err .badge{color:#ef4444;border-color:rgba(239,68,68,.35);}
 
-    /* DEV CONSOLE SMOOTH OVERLAY */
     #dev-console-overlay{
       display:none;
       position:fixed;inset:0;
@@ -188,7 +172,6 @@
       cursor:pointer;
     }
     #dev-close:hover{background:rgba(255,255,255,.08);}
-
     #dev-password-input{
       width:100%;
       font-family:'JetBrains Mono',monospace;
@@ -219,7 +202,6 @@
       color:#ef4444;
     }
 
-    /* CODING DRAWER (SLIDE OUT) */
     #coding-drawer{
       position:fixed;top:0;right:0;height:100vh;width:min(520px, 96vw);
       transform:translateX(110%);
@@ -330,7 +312,6 @@
       color:rgba(255,255,255,.72);
     }
 
-    /* PERSONA CARD ACTIVE */
     .persona-card.active{
       border-color:rgba(0,245,255,.55) !important;
       background:rgba(0,245,255,.07) !important;
@@ -344,7 +325,6 @@
   <div class="scanlines"></div>
   <canvas id="starfield" class="fixed inset-0 z-0 opacity-80"></canvas>
 
-  <!-- TOAST STACK -->
   <div id="toast-stack"></div>
 
   <div class="fixed top-6 right-6 z-50 flex gap-4">
@@ -363,7 +343,6 @@
           <input id="job-title" type="text" placeholder="e.g. Senior Solidity Engineer" class="sci-input">
         </div>
 
-        <!-- MODE + PERSONA -->
         <div class="grid grid-cols-2 gap-4">
           <div class="p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer hover:bg-cyan-500/10 transition-colors" onclick="selectMode(this, 'free')">
             <div class="text-cyan-400 font-bold text-sm mb-1">STANDARD PROTOCOL</div>
@@ -377,7 +356,6 @@
           </div>
         </div>
 
-        <!-- PERSONALITY SELECTOR -->
         <div>
           <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Interviewer Personality</label>
           <div class="grid grid-cols-2 gap-3">
@@ -398,9 +376,7 @@
               <div class="text-[10px] mono text-slate-400">Systems · depth · calm</div>
             </button>
           </div>
-          <div class="mt-2 text-[10px] mono text-slate-500">
-            Pro unlock adds “Committee / Bar Raiser” variants.
-          </div>
+          <div class="mt-2 text-[10px] mono text-slate-500">Pro unlock adds “Committee / Bar Raiser” variants.</div>
         </div>
 
         <div>
@@ -499,15 +475,11 @@
 
         <div class="grid grid-cols-3 gap-8 mb-8">
           <div class="col-span-2 space-y-4">
-            <div class="text-sm text-slate-300 leading-relaxed font-light p-4 bg-white/5 rounded border border-white/5" id="final-summary">
-              Calculating trajectory...
-            </div>
-
+            <div class="text-sm text-slate-300 leading-relaxed font-light p-4 bg-white/5 rounded border border-white/5" id="final-summary">Calculating trajectory...</div>
             <div class="p-4 bg-cyan-500/5 border border-cyan-500/15 rounded">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Coding Addendum</div>
               <div class="text-[11px] mono text-slate-300 opacity-90" id="coding-addendum">No coding challenges attempted.</div>
             </div>
-
             <div id="affiliate-container"></div>
           </div>
 
@@ -556,7 +528,6 @@
     <div id="network-logs" class="h-full overflow-y-auto space-y-2 pb-8 text-green-400/80"></div>
   </div>
 
-  <!-- DEV CONSOLE (SMOOTH, NO POPUP/ALERT) -->
   <div id="dev-console-overlay">
     <div id="dev-console-card">
       <div class="inner">
@@ -568,23 +539,14 @@
           <button id="dev-close" type="button">[CLOSE]</button>
         </div>
 
-        <div class="text-[11px] mono text-slate-300 opacity-85 mb-3">
-          Enter passcode. Invalid entries will be logged.
-        </div>
-
+        <div class="text-[11px] mono text-slate-300 opacity-85 mb-3">Enter passcode. Invalid entries will be logged.</div>
         <input type="text" id="dev-password-input" placeholder="ENTER PASSCODE..." autocomplete="off" />
-
-        <div id="dev-hint">
-          <span class="opacity-70">> Keys captured</span>
-          <span class="opacity-70 mono">ESC closes</span>
-        </div>
-
+        <div id="dev-hint"><span class="opacity-70">> Keys captured</span><span class="opacity-70 mono">ESC closes</span></div>
         <div id="dev-error">> ACCESS DENIED</div>
       </div>
     </div>
   </div>
 
-  <!-- CODING DRAWER -->
   <aside id="coding-drawer" aria-hidden="true">
     <div id="coding-drawer-header">
       <div class="title">
@@ -624,9 +586,6 @@
   </aside>
 
   <script>
-    /* =========================================
-       SYSTEM: AUDIO ENGINE (Synthesized SFX)
-       ========================================= */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let audioEnabled = false;
 
@@ -655,26 +614,16 @@
     function sfxAlert(){ playTone(200,'sawtooth',0.4); }
     function sfxOk(){ playTone(520,'square',0.08); setTimeout(()=>playTone(740,'square',0.12), 80); }
 
-    /* =========================================
-       UI: TOASTS (NO ALERTS)
-       ========================================= */
     function showToast(message, type="info", label=null){
       const stack = document.getElementById('toast-stack');
       const el = document.createElement('div');
       el.className = `toast ${type}`;
-      el.innerHTML = `
-        <div class="badge">${label || type.toUpperCase()}</div>
-        <div class="msg">${message}</div>
-      `;
+      el.innerHTML = `<div class="badge">${label || type.toUpperCase()}</div><div class="msg">${escapeHTML(message)}</div>`;
       stack.prepend(el);
-
       gsap.fromTo(el, {y:-12, opacity:0, scale:0.98}, {y:0, opacity:1, scale:1, duration:0.35, ease:"power3.out"});
       gsap.to(el, {opacity:0, y:-8, duration:0.35, ease:"power2.in", delay:2.6, onComplete:()=>el.remove()});
     }
 
-    /* =========================================
-       SYSTEM: PARTICLE PHYSICS (Starfield)
-       ========================================= */
     const cvs = document.getElementById('starfield');
     const ctx = cvs.getContext('2d');
     let w, h, stars = [], mouse = {x:0, y:0};
@@ -696,120 +645,98 @@
     window.addEventListener('mousemove', e => { mouse.x=e.clientX; mouse.y=e.clientY; });
     resize(); animate();
 
-    /* =========================================
-       SYSTEM: GAME LOGIC
-       ========================================= */
     let history = [], currentQ = 1, maxQ = 5;
-    let stress = 20; // 0 to 100
-    let isGodMode = false; // DEV MODE FLAG
+    let stress = 20;
+    let isGodMode = false;
 
-    // Coding scoring (injected into final report)
-    const coding = {
-      attempted: 0,
-      passed: 0,
-      score: 0,
-      logs: [] // {taskTitle, passed, delta, feedback}
-    };
+    const coding = { attempted: 0, passed: 0, score: 0, logs: [] };
 
-    // Interview readiness gating (after each AI question)
-    let awaitingCodingReady = false;     // true when AI asked "READY or SKIP"
+    let awaitingCodingReady = false;
     let codingDrawerOpen = false;
-    let currentCodingTask = null;        // JSON from AI
-    let pendingResumeAfterCoding = false;
+    let currentCodingTask = null;
+    let inCodingGateCheck = false;
 
-    // Boot logs
+    const AUTO_CODING = { enabled: true, minQuestionIndex: 1, checkCooldownMs: 650, maxAttemptsPerQuestion: 1 };
+    let lastGateCheckAt = 0;
+    let gateChecksByQuestion = {};
+
     function log(msg){
       const el = document.getElementById('boot-log');
-      el.innerHTML += `<div>> ${msg}</div>`;
+      el.innerHTML += `<div>> ${escapeHTML(msg)}</div>`;
     }
     setTimeout(()=>log("Loading assets..."), 500);
     setTimeout(()=>log("Connecting to neural net..."), 1200);
 
-    /* =========================================
-       PERSONAS (ADDED)
-       ========================================= */
     const personas = {
-      herman: {
-        name: "HERMAN",
-        prompt: `You are Herman, a brutal technical interviewer. You roast vague answers. You value precision and depth.`
-      },
-      ivy: {
-        name: "IVY",
-        prompt: `You are Ivy, a kind but extremely sharp interviewer. You coach briefly, then raise the bar. You demand clarity without being cruel.`
-      },
-      vex: {
-        name: "VEX",
-        prompt: `You are Vex, a fast, chaotic interviewer. You love edge-cases, performance constraints, and adversarial testing. You move quickly.`
-      },
-      atlas: {
-        name: "ATLAS",
-        prompt: `You are Atlas, a calm systems interviewer. You care about tradeoffs, architecture, correctness, and clean reasoning.`
-      },
-
-      // Pro personalities (unlocked via pro mode; still selectable if unlocked)
-      committee: {
-        name: "COMMITTEE",
-        proOnly: true,
-        prompt: `You are a FAANG L5 hiring committee. You speak like a panel: structured, strict, rubric-driven. You demand signal.`
-      },
-      barraiser: {
-        name: "BAR RAISER",
-        proOnly: true,
-        prompt: `You are a Bar Raiser. You probe for ownership, impact, and depth. You reject hand-waving and ask follow-up traps.`
-      }
+      herman: { name: "HERMAN", prompt: `You are Herman, a brutal technical interviewer. You roast vague answers. You value precision and depth.` },
+      ivy: { name: "IVY", prompt: `You are Ivy, a kind but extremely sharp interviewer. You coach briefly, then raise the bar. You demand clarity without being cruel.` },
+      vex: { name: "VEX", prompt: `You are Vex, a fast, chaotic interviewer. You love edge-cases, performance constraints, and adversarial testing. You move quickly.` },
+      atlas: { name: "ATLAS", prompt: `You are Atlas, a calm systems interviewer. You care about tradeoffs, architecture, correctness, and clean reasoning.` },
+      committee: { name: "COMMITTEE", proOnly: true, prompt: `You are a FAANG L5 hiring committee. You speak like a panel: structured, strict, rubric-driven. You demand signal.` },
+      barraiser: { name: "BAR RAISER", proOnly: true, prompt: `You are a Bar Raiser. You probe for ownership, impact, and depth. You reject hand-waving and ask follow-up traps.` }
     };
 
     let selectedMode = "free";
-    let selectedPersona = "herman"; // default
+    let selectedPersona = "herman";
 
     function selectMode(el, mode){
-      // Reset visual highlight for left card only (keep your original logic vibe but safer)
       document.querySelectorAll('#setup-view .border-cyan-500\\/50').forEach(c=>{
         c.className = "p-4 border border-white/10 bg-black/40 rounded cursor-pointer hover:bg-white/5 transition-colors";
         const t = c.querySelector('.font-bold');
         if(t) t.className = "text-slate-400 font-bold text-sm mb-1";
       });
-
       el.className = "p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer transition-colors shadow-[0_0_15px_rgba(0,245,255,0.1)]";
       const head = el.querySelector('.font-bold');
       if(head) head.className = "text-cyan-400 font-bold text-sm mb-1";
-
       selectedMode = mode;
       playTone(600,'sine',0.05);
-
       showToast(`Mode set: ${mode.toUpperCase()}`, "info", "MODE");
     }
 
     function selectPersona(key){
-      // Block pro-only personas unless pro is unlocked
       const p = personas[key];
       if(!p) return;
-
       const isProPersona = !!p.proOnly;
       const proUnlocked = document.getElementById('pro-card')?.classList.contains('cursor-pointer') && !document.getElementById('pro-card')?.classList.contains('locked-option');
-
       if(isProPersona && !(selectedMode === "pro" && proUnlocked)){
         showToast(`Locked: ${p.name}. Unlock Pro to use it.`, "err", "LOCKED");
         sfxAlert();
         return;
       }
-
       selectedPersona = key;
       document.querySelectorAll('.persona-card').forEach(btn=>btn.classList.remove('active'));
-      // find matching button by onclick contains key
       const btn = Array.from(document.querySelectorAll('.persona-card')).find(b => (b.getAttribute('onclick') || "").includes(`'${key}'`) || (b.getAttribute('onclick') || "").includes(`"${key}"`));
       if(btn) btn.classList.add('active');
-
       showToast(`Persona selected: ${p.name}`, "ok", "PERSONA");
       sfxOk();
     }
 
-    // Preselect default persona card
     window.addEventListener('DOMContentLoaded', () => selectPersona('herman'));
 
-    /* =========================================
-       BOOT
-       ========================================= */
+    function getPersonaName(){
+      const p = personas[selectedPersona] || personas.herman;
+      return p.name;
+    }
+
+    function buildSysPrompt(){
+      const job = document.getElementById('job-title').value || "Engineer";
+      const stack = document.getElementById('stack').value;
+      const personaObj = personas[selectedPersona] || personas.herman;
+      const personaPrompt = personaObj.prompt;
+      const proFlavor = (selectedMode === "pro") ? `PRO MODE: Stricter, rubric-based, hiring-bar vibe.` : `STANDARD MODE: Intense but human.`;
+      return `${personaPrompt}
+Job: ${job}. Stack: ${stack}.
+${proFlavor}
+
+INTERVIEW RULES:
+1) Ask ONE hard question at a time, tailored to the role and stack.
+2) Max ${maxQ} questions total.
+3) Be strict about vagueness; request specifics and examples.
+4) Use stressLevel if provided: if user is short/weak, apply pressure.
+5) After you ask each interview question, you may include "Reply READY or SKIP" but the system may auto-open coding if theory is strong.
+6) When you are done, output [END] on its own line.`;
+    }
+
     function bootSystem(){
       playTone(100,'sawtooth',1.0);
       const tl = gsap.timeline();
@@ -821,109 +748,60 @@
       .from("#chat-view",{opacity:0,scale:1.05,duration:0.8});
     }
 
-    function buildSysPrompt(){
-      const job = document.getElementById('job-title').value || "Engineer";
-      const stack = document.getElementById('stack').value;
-
-      const personaObj = personas[selectedPersona] || personas.herman;
-      const personaPrompt = personaObj.prompt;
-
-      // IMPORTANT: This implements your rule: after every AI question, ask if user is ready for coding problem.
-      // The user should respond with READY or SKIP.
-      const codingRule = `
-CODING FLOW (MANDATORY):
-- After you ask EACH interview question, you MUST end with:
-  "Are you ready for a coding problem? Reply READY or SKIP."
-- If the user says READY: pause interview, they will complete a coding task in a console.
-- If the user says SKIP: continue the interview with the next question.
-- If the user answers something else: remind them to reply READY or SKIP (briefly), then continue.
-
-INTERVIEW RULES:
-1) Ask ONE hard question at a time, tailored to the role and stack.
-2) Max ${maxQ} questions total.
-3) Be strict about vagueness; request specifics and examples.
-4) Use the user's stress signal: if short/weak answers, apply pressure.
-5) When you are done, output [END] on its own line.`;
-
-      // Pro mode flavor
-      const proFlavor = (selectedMode === "pro")
-        ? `\nPRO MODE: You are stricter and rubric-based. Keep a hiring-bar vibe.\n`
-        : `\nSTANDARD MODE: Keep it intense but not robotic.\n`;
-
-      return `${personaPrompt}
-Job: ${job}. Stack: ${stack}.
-${proFlavor}
-${codingRule}`;
-    }
-
     function initInterview(){
       history = [];
+      currentQ = 1;
+      gateChecksByQuestion = {};
       const sysPrompt = buildSysPrompt();
       history.push({role:"system", content: sysPrompt});
       callAI("Start interview.", { skipCounter: true });
     }
 
-    /* =========================================
-       CHAT SEND
-       ========================================= */
     async function sendMsg(){
       const inputEl = document.getElementById('user-input');
       const txt = inputEl.value.trim();
       if(!txt) return;
 
-      // Intercept READY / SKIP flow (so it doesn't mess question counter)
       if(awaitingCodingReady){
         const low = txt.toLowerCase();
-
         if(["ready","r","yes","y","ok","okay","go"].includes(low)){
           sfxSend();
           addBubble("CANDIDATE", txt, true);
           inputEl.value = "";
           inputEl.disabled = true;
           document.getElementById('typing-indicator').style.opacity = 0;
-
           awaitingCodingReady = false;
-
-          // Log to history (AI asked for READY/SKIP)
           history.push({role:"user", content:"READY"});
-          await openCodingFlow();
+          await openCodingFlow(null);
           inputEl.disabled = false;
           inputEl.focus();
           return;
         }
-
         if(["skip","no","n","later"].includes(low)){
           sfxSend();
           addBubble("CANDIDATE", txt, true);
           inputEl.value = "";
           inputEl.disabled = true;
           document.getElementById('typing-indicator').style.opacity = 1;
-
           awaitingCodingReady = false;
-
           history.push({role:"user", content:"SKIP"});
-          // Continue interview, but don't increment Q counter here; the model will ask next question
           await callAI("SKIP", { skipCounter: true });
           inputEl.disabled = false;
           inputEl.focus();
           return;
         }
-
-        // If they typed something else while we are waiting for READY/SKIP:
         sfxSend();
         addBubble("CANDIDATE", txt, true);
         inputEl.value = "";
         inputEl.disabled = true;
         document.getElementById('typing-indicator').style.opacity = 1;
-
         history.push({role:"user", content: txt});
-        await callAI(txt, { skipCounter: true }); // still don't advance the Q counter until the next real question cycle
+        await callAI(txt, { skipCounter: true });
         inputEl.disabled = false;
         inputEl.focus();
         return;
       }
 
-      // Normal interview answer
       sfxSend();
       addBubble("CANDIDATE", txt, true);
       inputEl.value = "";
@@ -933,8 +811,6 @@ ${codingRule}`;
       updateStress(Math.random()*10 - 2);
 
       history.push({role:"user", content: txt});
-
-      // Increment question progress UI once per user answer (your original behavior)
       currentQ++;
       if(currentQ <= maxQ){
         document.getElementById('q-counter').innerHTML = `0${currentQ}<span class="text-lg text-slate-600">/05</span>`;
@@ -946,21 +822,13 @@ ${codingRule}`;
       inputEl.focus();
     }
 
-    /* =========================================
-       AI CALL (Netlify)
-       ========================================= */
     async function callAI(msg, options = {}){
       const payload = { messages: history, stressLevel: stress };
-
       if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat", payload);
 
       try{
-        const res = await fetch("/.netlify/functions/chat", {
-          method:"POST",
-          body: JSON.stringify(payload)
-        });
+        const res = await fetch("/.netlify/functions/chat", { method:"POST", body: JSON.stringify(payload) });
         const data = await res.json();
-
         if(isGodMode) logNetwork("RES", "200 OK", data);
         if(data.error) throw new Error(data.error);
 
@@ -978,21 +846,20 @@ ${codingRule}`;
         history.push({role:"assistant", content: reply});
         typewriter(reply, { speakerOverride: getPersonaName() });
 
-        // Mark that we expect READY/SKIP after each AI question.
-        // We only turn this on if the assistant message contains that phrase OR we enforce it anyway.
-        // This makes it robust even if model forgets sometimes.
-        if(reply.toLowerCase().includes("reply ready or skip") || reply.toLowerCase().includes("are you ready for a coding problem")){
+        if(reply.length > 200) updateStress(10);
+
+        const forcedReadySkip = (reply.toLowerCase().includes("reply ready or skip") || reply.toLowerCase().includes("are you ready for a coding problem"));
+        if(forcedReadySkip){
           awaitingCodingReady = true;
         } else {
-          // Enforce: if model forgot, we add a SYSTEM nudge bubble + set awaiting
-          addBubble("SYSTEM", "Are you ready for a coding problem? Reply READY or SKIP.", false);
-          awaitingCodingReady = true;
-          // Also inject into history so AI context stays consistent
-          history.push({role:"assistant", content:"Are you ready for a coding problem? Reply READY or SKIP."});
+          awaitingCodingReady = false;
         }
 
-        // Stress tweak
-        if(reply.length > 200) updateStress(10);
+        const gateVerdict = await maybeAutoOpenConsoleAfterAI(reply);
+        if(gateVerdict && gateVerdict.openConsole){
+          awaitingCodingReady = false;
+          return;
+        }
 
       }catch(e){
         console.error(e);
@@ -1002,26 +869,19 @@ ${codingRule}`;
       }
     }
 
-    function getPersonaName(){
-      const p = personas[selectedPersona] || personas.herman;
-      return p.name;
-    }
-
-    // --- GOD MODE LOGGER ---
     function logNetwork(type, header, data){
       const container = document.getElementById('network-logs');
       const entry = document.createElement('div');
       const time = new Date().toISOString().split('T')[1].split('.')[0];
       const color = type==="ERR" ? "text-red-500" : (type==="REQ" ? "text-cyan-500" : "text-green-500");
-
       entry.className = "border-b border-white/10 pb-1 mb-1 font-mono text-[9px] break-all";
       entry.innerHTML = `
         <div class="flex gap-2 opacity-50 mb-1">
           <span>[${time}]</span>
           <span class="${color} font-bold">[${type}]</span>
-          <span>${header}</span>
+          <span>${escapeHTML(header)}</span>
         </div>
-        <div class="pl-4 opacity-70">${JSON.stringify(data).substring(0, 300)}...</div>
+        <div class="pl-4 opacity-70">${escapeHTML(JSON.stringify(data).substring(0, 300))}...</div>
       `;
       container.prepend(entry);
     }
@@ -1037,9 +897,10 @@ ${codingRule}`;
         : "max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300";
 
       bubble.innerHTML = `
-        <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase mb-2 ${isUser?'text-cyan-400':'text-pink-400'}">${role}</div>
+        <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase mb-2 ${isUser?'text-cyan-400':'text-pink-400'}">${escapeHTML(role)}</div>
         <div class="text-sm leading-relaxed ${!isUser?'mono':''}">${escapeHTML(text)}</div>
       `;
+
       div.appendChild(bubble);
       scroll.appendChild(div);
       scroll.scrollTop = scroll.scrollHeight;
@@ -1053,7 +914,7 @@ ${codingRule}`;
       div.className = `flex w-full justify-start msg-enter mb-6`;
       div.innerHTML = `
         <div class="max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-          <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase text-pink-400 mb-2">${speaker}</div>
+          <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase text-pink-400 mb-2">${escapeHTML(speaker)}</div>
           <div class="text-sm leading-relaxed mono typing-target"></div>
         </div>`;
       scroll.appendChild(div);
@@ -1080,20 +941,13 @@ ${codingRule}`;
       stress = Math.max(0, Math.min(100, stress + amount));
       const bar = document.getElementById('stress-bar');
       bar.style.width = `${stress}%`;
-
       if(stress < 50) bar.style.background = "var(--neon-cyan)";
       else if(stress < 80) bar.style.background = "var(--neon-amber)";
       else bar.style.background = "var(--neon-pink)";
-
-      // Optional: dynamic live feedback spice
       if(stress >= 85) document.getElementById('live-feedback').textContent = `"You're spiraling. Tighten it up."`;
       else if(stress >= 60) document.getElementById('live-feedback').textContent = `"You're drifting. Give crisp structure."`;
       else document.getElementById('live-feedback').textContent = `"Good. Keep it clean and specific."`;
     }
-
-    /* =========================================
-       CODING CONSOLE FLOW (ADDED)
-       ========================================= */
 
     const drawer = document.getElementById('coding-drawer');
     const codingTaskEl = document.getElementById('coding-task');
@@ -1102,9 +956,8 @@ ${codingRule}`;
     const codingEditor = document.getElementById('coding-editor');
     const codingStatus = document.getElementById('coding-status');
 
-    document.getElementById('coding-close').addEventListener('click', closeCodingDrawer);
-    document.getElementById('coding-skip').addEventListener('click', () => {
-      // Skipping a coding task counts as attempted? You can decide. I keep it as "attempted started but skipped" = attempted+1 but not passed.
+    document.getElementById('coding-close').addEventListener('click', () => closeCodingDrawer());
+    document.getElementById('coding-skip').addEventListener('click', async () => {
       if(currentCodingTask){
         coding.attempted++;
         coding.logs.push({ taskTitle: currentCodingTask.title || "Coding Task", passed: false, delta: 0, feedback: "Skipped." });
@@ -1112,7 +965,7 @@ ${codingRule}`;
       }
       showToast("Coding task skipped. Interview resumes.", "info", "CODING");
       closeCodingDrawer(true);
-      resumeInterviewAfterCoding("[CODE SKIPPED] Continue interview.");
+      await resumeInterviewAfterCoding("[CODE SKIPPED] Continue interview.");
     });
 
     document.getElementById('coding-submit').addEventListener('click', async () => {
@@ -1150,12 +1003,10 @@ ${codingRule}`;
 
         refreshCodingUI();
 
-        // Add a result bubble in chat for drama
         addBubble("SYSTEM", verdict.passed ? `CODE VERIFIED: PASS (+${(verdict.delta ?? verdict.scoreDelta ?? 15)})` : `CODE VERIFIED: FAIL`, false);
 
         closeCodingDrawer(true);
 
-        // Resume interview with a compact note (keeps model aware)
         const note = verdict.passed
           ? `[CODE COMPLETED: PASS] Key feedback: ${truncate(verdict.feedback || "Good.", 160)}`
           : `[CODE COMPLETED: FAIL] Key feedback: ${truncate(verdict.feedback || "Needs work.", 160)}`;
@@ -1182,6 +1033,7 @@ ${codingRule}`;
     function openCodingDrawer(){
       codingDrawerOpen = true;
       drawer.setAttribute("aria-hidden", "false");
+      drawer.style.transform = "translateX(110%)";
       gsap.to(drawer, { x: 0, duration: 0.55, ease:"power4.out", onStart:()=>{ drawer.style.transform = "translateX(0%)"; }});
     }
 
@@ -1195,21 +1047,92 @@ ${codingRule}`;
       gsap.to(drawer, { x: 0, duration: 0.45, ease:"power3.in", onComplete:()=>{ drawer.style.transform="translateX(110%)"; }});
     }
 
-    async function openCodingFlow(){
-      // Load a task from the AI based on last question + stack
-      openCodingDrawer();
-      codingEditor.value = "";
-      codingStatus.textContent = "Status: generating task…";
+    function looksLikeQuestion(text) {
+      const t = (text || "").trim();
+      if (!t) return false;
+      if (t.includes("?")) return true;
+      const qWords = ["explain", "how would", "why", "what is", "describe", "design", "implement", "optimize", "secure", "refactor"];
+      const low = t.toLowerCase();
+      return qWords.some(w => low.includes(w));
+    }
 
-      const task = await requestCodingTask();
-      currentCodingTask = task;
+    async function runTheoryGateCheck() {
+      if (!AUTO_CODING.enabled) return { openConsole: false };
+      if (inCodingGateCheck) return { openConsole: false };
 
-      codingTaskEl.textContent = task.title ? `> ${task.title}\n\n${task.problem || ""}` : (task.problem || "No task received.");
-      codingWhatEl.textContent = task.whatToCode || task.instructions || "Implement the required function / module.";
-      codingStarterEl.textContent = task.starter || task.starterCode || task.notes || "No starter provided.";
+      const now = Date.now();
+      if (now - lastGateCheckAt < AUTO_CODING.checkCooldownMs) return { openConsole: false };
+      lastGateCheckAt = now;
 
-      codingStatus.textContent = "Status: waiting for your solution";
-      showToast("Coding console deployed.", "info", "CODING");
+      const qIndex = Math.max(1, currentQ);
+      gateChecksByQuestion[qIndex] = gateChecksByQuestion[qIndex] || 0;
+      if (gateChecksByQuestion[qIndex] >= AUTO_CODING.maxAttemptsPerQuestion) return { openConsole: false };
+      gateChecksByQuestion[qIndex]++;
+
+      const slice = history
+        .filter(m => m.role !== "system")
+        .slice(-10)
+        .map(m => `${m.role.toUpperCase()}: ${m.content}`)
+        .join("\n\n");
+
+      const stack = document.getElementById("stack").value;
+
+      const gateSystem = `
+You are a strict gating function for an interview simulator.
+Decide if the user's THEORY answers so far are complete enough to proceed to a CODING task.
+Return ONLY valid JSON:
+{
+  "openConsole": true|false,
+  "reason": "short reason",
+  "difficulty": "easy|medium|hard",
+  "focus": "what the coding task should test"
+}
+Rules:
+- Use only the provided transcript.
+- openConsole=true only if the user's answers show enough understanding and specificity for the last asked question(s).
+- If user is vague, missing key steps, or hand-wavy => openConsole=false.
+- For stack="${stack}", pick a realistic focus for coding.`;
+
+      const payload = {
+        messages: [
+          ...history,
+          { role: "system", content: gateSystem },
+          { role: "user", content: `TRANSCRIPT (most recent):\n${slice}\n\nReturn JSON now.` }
+        ]
+      };
+
+      if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat (theory_gate)", payload);
+
+      inCodingGateCheck = true;
+      try {
+        const res = await fetch("/.netlify/functions/chat", { method: "POST", body: JSON.stringify(payload) });
+        const data = await res.json();
+        if(isGodMode) logNetwork("RES", "200 OK (theory_gate)", data);
+        if(data.error) throw new Error(data.error);
+        const raw = data.choices[0].message.content.trim();
+        const verdict = safeJSON(raw);
+        return verdict;
+      } finally {
+        inCodingGateCheck = false;
+      }
+    }
+
+    async function maybeAutoOpenConsoleAfterAI(replyText) {
+      if (!looksLikeQuestion(replyText)) return null;
+      if (currentQ < AUTO_CODING.minQuestionIndex) return null;
+      if (codingDrawerOpen) return null;
+
+      const gateVerdict = await runTheoryGateCheck();
+      if (gateVerdict?.openConsole) {
+        showToast(`Theory confirmed. Deploying coding console…`, "ok", "GATE");
+        sfxOk();
+        addBubble("SYSTEM", `THEORY GATE: PASS — ${gateVerdict.reason || "Proceed to code."}`, false);
+        await openCodingFlow(gateVerdict);
+        return gateVerdict;
+      } else if (gateVerdict && gateVerdict.openConsole === false) {
+        addBubble("SYSTEM", `THEORY GATE: HOLD — ${gateVerdict.reason || "Need more specifics."}`, false);
+      }
+      return gateVerdict;
     }
 
     async function requestCodingTask(){
@@ -1227,7 +1150,6 @@ Return ONLY valid JSON with keys:
  "evaluationRubric": "how it will be graded",
  "constraints": "optional constraints"
 }
-
 Rules:
 - Make it appropriate for Stack="${stack}".
 - Keep it solvable in 5-10 minutes.
@@ -1250,6 +1172,63 @@ Rules:
       return safeJSON(raw);
     }
 
+    async function requestCodingTaskWithGateHints(gateVerdict) {
+      const stack = document.getElementById('stack').value;
+      const personaName = getPersonaName();
+      const focus = gateVerdict?.focus || "core fundamentals";
+      const difficulty = gateVerdict?.difficulty || "medium";
+
+      const system = `
+You are generating a single coding task for an interview simulator.
+Return ONLY valid JSON with keys:
+{
+ "title": "short title",
+ "problem": "clear problem statement",
+ "whatToCode": "exactly what the user must implement",
+ "starter": "starter code or function signature",
+ "evaluationRubric": "how it will be graded",
+ "constraints": "optional constraints"
+}
+Rules:
+- Stack="${stack}"
+- Difficulty="${difficulty}"
+- Focus="${focus}"
+- Solvable in 5-10 minutes.
+- No external libraries required.
+- Prefer Python for Python/AWS, JS/TS for React/Node, Rust for Rust/Solana.
+- Be explicit about function signature and input/output.
+- Keep JSON small. No markdown fences.`;
+
+      const payload = { messages: [...history, {role:"system", content: system}, {role:"user", content:`Generate the coding task now. Persona=${personaName}.`}] };
+
+      if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat (coding_task)", payload);
+
+      const res = await fetch("/.netlify/functions/chat", { method:"POST", body: JSON.stringify(payload) });
+      const data = await res.json();
+
+      if(isGodMode) logNetwork("RES", "200 OK (coding_task)", data);
+      if(data.error) throw new Error(data.error);
+
+      const raw = data.choices[0].message.content.trim();
+      return safeJSON(raw);
+    }
+
+    async function openCodingFlow(gateVerdict = null) {
+      openCodingDrawer();
+      codingEditor.value = "";
+      codingStatus.textContent = "Status: generating task…";
+
+      const task = gateVerdict ? await requestCodingTaskWithGateHints(gateVerdict) : await requestCodingTask();
+      currentCodingTask = task;
+
+      codingTaskEl.textContent = task.title ? `> ${task.title}\n\n${task.problem || ""}` : (task.problem || "No task received.");
+      codingWhatEl.textContent = task.whatToCode || task.instructions || "Implement the required function / module.";
+      codingStarterEl.textContent = task.starter || task.starterCode || task.notes || "No starter provided.";
+
+      codingStatus.textContent = "Status: waiting for your solution";
+      showToast("Coding console deployed.", "info", "CODING");
+    }
+
     async function evaluateCodingSolution(task, solution){
       const stack = document.getElementById('stack').value;
 
@@ -1261,7 +1240,6 @@ Return ONLY valid JSON with keys:
  "delta": number (0-25),
  "feedback": "concise feedback including what failed/passed and 1-2 improvements"
 }
-
 Rules:
 - Grade against the task statement and the expected signature.
 - If solution is obviously incomplete or wrong, passed=false.
@@ -1269,13 +1247,7 @@ Rules:
 - Keep feedback short and actionable.
 - Stack="${stack}".`;
 
-      const payload = {
-        messages: [
-          ...history,
-          {role:"system", content: system},
-          {role:"user", content: `TASK:\n${JSON.stringify(task)}\n\nSOLUTION:\n${solution}`}
-        ]
-      };
+      const payload = { messages: [...history, {role:"system", content: system}, {role:"user", content: `TASK:\n${JSON.stringify(task)}\n\nSOLUTION:\n${solution}`}] };
 
       if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat (coding_grade)", payload);
 
@@ -1290,14 +1262,10 @@ Rules:
     }
 
     async function resumeInterviewAfterCoding(note){
-      // Don’t increment question UI counter here; we just keep context and let next user answer do that.
       history.push({role:"user", content: note});
       await callAI(note, { skipCounter: true });
     }
 
-    /* =========================================
-       RESULTS & MONETIZATION (UPDATED to include coding)
-       ========================================= */
     function endGame(){
       gsap.to("#chat-view",{opacity:0,duration:1,onComplete:()=>{
         document.getElementById('chat-view').style.display='none';
@@ -1309,12 +1277,7 @@ Rules:
     }
 
     async function generateReport(){
-      const codingSummary = {
-        attempted: coding.attempted,
-        passed: coding.passed,
-        score: coding.score,
-        logs: coding.logs.slice(-5) // keep last 5
-      };
+      const codingSummary = { attempted: coding.attempted, passed: coding.passed, score: coding.score, logs: coding.logs.slice(-5) };
 
       const prompt = `
 Analyze the interview and produce JSON:
@@ -1324,7 +1287,6 @@ Analyze the interview and produce JSON:
  "tips": ["tip1","tip2","tip3"],
  "codingAddendum": "1-2 sentence summary about coding performance and how it affected the score"
 }
-
 Important:
 - Incorporate coding performance from CODING_STATS.
 - Coding can change final score by up to +15 if strong, -10 if repeatedly failed / skipped.
@@ -1345,16 +1307,13 @@ Important:
       const cleaned = (data.choices?.[0]?.message?.content || "").replace(/```json|```/g,"").trim();
       const stats = safeJSON(cleaned);
 
-      // Animate score
       let obj = { val: 0 };
       gsap.to(obj,{val: stats.score, duration:2, onUpdate:()=>{ document.getElementById('final-score').innerText = Math.round(obj.val) + "%"; }});
 
       document.getElementById('final-summary').innerText = stats.summary || "—";
       document.getElementById('tips-list').innerHTML = (stats.tips || []).map(t=>`<li>> ${escapeHTML(t)}</li>`).join('');
-      document.getElementById('coding-addendum').innerText =
-        stats.codingAddendum || (coding.attempted ? `Attempted ${coding.attempted}, passed ${coding.passed}, coding score ${coding.score}.` : "No coding challenges attempted.");
+      document.getElementById('coding-addendum').innerText = stats.codingAddendum || (coding.attempted ? `Attempted ${coding.attempted}, passed ${coding.passed}, coding score ${coding.score}.` : "No coding challenges attempted.");
 
-      // SMART MONETIZATION INJECTION (unchanged)
       const container = document.getElementById('affiliate-container');
       let adLink = "https://www.tryexponent.com/?ref=YOUR_ID";
       let adText = "MASTER SYSTEM DESIGN";
@@ -1394,9 +1353,6 @@ Important:
       a.click();
     }
 
-    /* =========================================
-       GOD MODE / DEVELOPER CONSOLE (SMOOTH)
-       ========================================= */
     let keyBuffer = "";
     const secretWord = "mimimami";
 
@@ -1407,13 +1363,10 @@ Important:
     const devCloseBtn = document.getElementById('dev-close');
 
     document.addEventListener('keydown', (e)=>{
-      // ESC closes overlays
       if(e.key === "Escape"){
         if(consoleOverlay.style.display === "flex") closeDevConsole();
         if(codingDrawerOpen) closeCodingDrawer();
       }
-
-      // Secret word buffer
       keyBuffer += e.key;
       if(keyBuffer.length > 50) keyBuffer = keyBuffer.slice(-20);
       if(keyBuffer.includes(secretWord)){
@@ -1433,12 +1386,9 @@ Important:
       errorMsg.style.display = "none";
       passwordInput.value = "";
       passwordInput.style.borderColor = "rgba(0,245,255,.18)";
-
-      // Smooth GSAP entrance
       gsap.fromTo(consoleOverlay, {opacity:0}, {opacity:1, duration:0.25, ease:"power2.out"});
       gsap.fromTo(consoleCard, {y:14, opacity:0, scale:0.98}, {y:0, opacity:1, scale:1, duration:0.35, ease:"power3.out"});
       setTimeout(()=>passwordInput.focus(), 60);
-
       showToast("Developer console opened.", "info", "DEV");
     }
 
@@ -1453,7 +1403,6 @@ Important:
     passwordInput.addEventListener('keypress', (e)=>{
       if(e.key !== "Enter") return;
       const code = passwordInput.value.trim();
-
       if(code === "geper"){
         activateGodMode();
       }else if(code === "freecourse"){
@@ -1470,8 +1419,6 @@ Important:
       closeDevConsole();
       isGodMode = true;
       document.getElementById('network-monitor').style.display = "block";
-
-      // Visual flair (keep yours, but no alert)
       document.body.style.fontFamily = "'JetBrains Mono', monospace";
       showToast("GOD MODE: Network monitor active.", "ok", "DEV");
       sfxOk();
@@ -1501,9 +1448,6 @@ Important:
       showToast("Pro unlocked: FAANG simulation enabled.", "ok", "PRO");
     }
 
-    /* =========================================
-       THEMES (unchanged, kept)
-       ========================================= */
     function setTheme(color){
       const root = document.documentElement;
       const themes = {
@@ -1515,7 +1459,6 @@ Important:
       };
       const [neon,text] = themes[color];
       root.style.setProperty('--neon-cyan', neon);
-
       playTone(color==='red'?100:500,'square',0.1);
 
       let style = document.getElementById('theme-override');
@@ -1538,20 +1481,13 @@ Important:
       showToast(`Theme: ${color.toUpperCase()}`, "info", "THEME");
     }
 
-    /* =========================================
-       HELPERS (safe JSON, escaping)
-       ========================================= */
     function safeJSON(raw){
       try{
-        // remove any accidental fences
         const cleaned = raw.replace(/```json|```/g,"").trim();
         return JSON.parse(cleaned);
       }catch(e){
-        // last-resort attempt: extract first {...}
         const m = raw.match(/\{[\s\S]*\}/);
-        if(m){
-          return JSON.parse(m[0]);
-        }
+        if(m) return JSON.parse(m[0]);
         throw e;
       }
     }
