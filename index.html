@@ -1,1510 +1,871 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full w-full bg-black">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ANTERVIEW | EVENT HORIZON [PRO]</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANTERVIEW | EVENT HORIZON [PRO]</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@100;400;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-cyan: #00f5ff;
+            --neon-pink: #ff0055;
+            --neon-amber: #ff9900;
+            --neon-purple: #a855f7;
+            --void: #030305;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@100;400;700;800&display=swap" rel="stylesheet">
+        /* RESET & BASE */
+        body { font-family: 'Space Grotesk', sans-serif; background-color: var(--void); color: #fff; overflow: hidden; cursor: crosshair; transition: background-color 0.5s; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
 
-  <style>
-    :root{
-      --neon-cyan:#00f5ff;
-      --neon-pink:#ff0055;
-      --neon-amber:#ff9900;
-      --void:#030305;
-      --glass:rgba(255,255,255,0.03);
-      --border:rgba(255,255,255,0.1);
-    }
-    body{
-      font-family:'Space Grotesk',sans-serif;
-      background-color:var(--void);
-      color:#fff;
-      overflow:hidden;
-      cursor:crosshair;
-      transition:background-color .5s;
-    }
-    .mono{font-family:'JetBrains Mono',monospace;}
-    .scanlines{
-      position:fixed;top:0;left:0;width:100%;height:100%;
-      pointer-events:none;z-index:9999;
-      background:
-        linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,.25) 50%),
-        linear-gradient(90deg, rgba(255,0,0,.06), rgba(0,255,0,.02), rgba(0,0,255,.06));
-      background-size:100% 2px, 3px 100%;
-      opacity:.6;
-    }
-    .glass-panel{
-      background:rgba(10,11,15,.85);
-      backdrop-filter:blur(20px);
-      -webkit-backdrop-filter:blur(20px);
-      border:1px solid var(--border);
-      box-shadow:0 0 40px rgba(0,245,255,.05), inset 0 0 20px rgba(255,255,255,.02);
-    }
-    .sci-input{
-      width:100%;
-      background:rgba(0,0,0,.4);
-      border:1px solid var(--border);
-      padding:16px;border-radius:4px;
-      color:var(--neon-cyan);
-      font-family:'JetBrains Mono',monospace;
-      font-size:14px;outline:none;transition:.3s;
-    }
-    .sci-input:focus{
-      border-color:var(--neon-cyan);
-      box-shadow:0 0 15px rgba(0,245,255,.15);
-    }
-    .sci-btn{
-      background:var(--neon-cyan);
-      color:#000;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:2px;
-      padding:16px;border-radius:4px;
-      transition:.2s;
-      clip-path:polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
-    }
-    .sci-btn:hover{background:#fff;box-shadow:0 0 30px var(--neon-cyan);}
-    .sci-btn:active{transform:scale(.98);}
-    .locked-option{opacity:.5;cursor:not-allowed;position:relative;border:1px solid #333;}
-    .locked-badge{position:absolute;right:10px;top:10px;font-size:9px;background:var(--neon-pink);color:#fff;padding:2px 6px;border-radius:2px;font-weight:bold;}
-    .msg-enter{animation:slideUp .4s cubic-bezier(.16,1,.3,1) forwards;opacity:0;transform:translateY(20px);}
-    @keyframes slideUp{to{opacity:1;transform:translateY(0);}}
-    .typing-cursor::after{content:'█';animation:blink .8s infinite;color:var(--neon-cyan);margin-left:4px;}
-    @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
-    .stress-container{width:100%;height:4px;background:#333;margin-top:8px;position:relative;overflow:hidden;}
-    .stress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-amber),var(--neon-pink));width:0%;transition:width .5s ease;}
-    .theme-scroll::-webkit-scrollbar{height:0;background:transparent;}
+        /* CRT SCANLINE EFFECT */
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            opacity: 0.6;
+            pointer-events: none;
+        }
 
-    #toast-stack{
-      position:fixed;top:18px;left:50%;transform:translateX(-50%);
-      z-index:10050;display:flex;flex-direction:column;gap:10px;
-      pointer-events:none;
-      width:min(560px, 92vw);
-    }
-    .toast{
-      pointer-events:none;
-      background:rgba(0,0,0,.85);
-      border:1px solid rgba(255,255,255,.12);
-      backdrop-filter:blur(12px);
-      border-radius:10px;
-      padding:10px 12px;
-      display:flex;align-items:flex-start;gap:10px;
-      box-shadow:0 0 25px rgba(0,245,255,.08);
-    }
-    .toast .badge{
-      font-family:'JetBrains Mono',monospace;
-      font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-      padding:4px 8px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      opacity:.95;
-      margin-top:1px;
-    }
-    .toast .msg{
-      font-size:12px;line-height:1.3;
-      color:#dbeafe;
-      font-family:'JetBrains Mono',monospace;
-      opacity:.95;
-    }
-    .toast.info .badge{color:var(--neon-cyan);border-color:rgba(0,245,255,.35);}
-    .toast.ok .badge{color:#10b981;border-color:rgba(16,185,129,.35);}
-    .toast.err .badge{color:#ef4444;border-color:rgba(239,68,68,.35);}
+        /* GLASSMORPHISM */
+        .glass-panel {
+            background: rgba(10, 11, 15, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            box-shadow: 0 0 40px rgba(0, 245, 255, 0.05), inset 0 0 20px rgba(255,255,255,0.02);
+        }
 
-    #dev-console-overlay{
-      display:none;
-      position:fixed;inset:0;
-      background:rgba(0,0,0,.72);
-      z-index:9999;
-      justify-content:center;align-items:center;
-    }
-    #dev-console-card{
-      width:min(520px, 92vw);
-      border-radius:16px;
-      overflow:hidden;
-      border:1px solid rgba(0,245,255,.25);
-      background:rgba(0,0,0,.72);
-      box-shadow:0 0 40px rgba(0,245,255,.12);
-      position:relative;
-    }
-    #dev-console-card:before{
-      content:"";
-      position:absolute;inset:-2px;
-      background:linear-gradient(120deg, rgba(0,245,255,.35), rgba(255,0,85,.18), rgba(255,153,0,.18));
-      filter:blur(18px);
-      opacity:.35;
-      z-index:0;
-    }
-    #dev-console-card .inner{
-      position:relative;z-index:1;
-      padding:18px 18px 16px 18px;
-      background:rgba(0,0,0,.78);
-      backdrop-filter:blur(18px);
-    }
-    #dev-console-title{
-      display:flex;align-items:center;justify-content:space-between;
-      border-bottom:1px solid rgba(0,245,255,.16);
-      padding-bottom:12px;margin-bottom:12px;
-    }
-    #dev-console-title .left{
-      display:flex;align-items:center;gap:10px;
-    }
-    .pulse-dot{
-      width:10px;height:10px;border-radius:999px;background:var(--neon-cyan);
-      box-shadow:0 0 12px rgba(0,245,255,.9);
-      animation:pulse 1.2s infinite;
-    }
-    @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.25);opacity:.65;}}
-    #dev-console-title .txt{
-      font-family:'JetBrains Mono',monospace;
-      font-size:11px;letter-spacing:.22em;
-      text-transform:uppercase;
-      color:rgba(0,245,255,.95);
-    }
-    #dev-close{
-      font-family:'JetBrains Mono',monospace;
-      font-size:11px;
-      color:rgba(255,255,255,.75);
-      border:1px solid rgba(255,255,255,.12);
-      padding:6px 10px;border-radius:10px;
-      background:rgba(255,255,255,.04);
-      cursor:pointer;
-    }
-    #dev-close:hover{background:rgba(255,255,255,.08);}
-    #dev-password-input{
-      width:100%;
-      font-family:'JetBrains Mono',monospace;
-      font-size:14px;
-      padding:14px 14px;
-      border-radius:12px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(0,245,255,.18);
-      color:var(--neon-cyan);
-      outline:none;
-      transition:.2s;
-    }
-    #dev-password-input:focus{
-      border-color:rgba(0,245,255,.45);
-      box-shadow:0 0 22px rgba(0,245,255,.16);
-    }
-    #dev-hint{
-      margin-top:10px;
-      font-family:'JetBrains Mono',monospace;
-      font-size:11px;
-      color:rgba(255,255,255,.55);
-      display:flex;justify-content:space-between;align-items:center;
-    }
-    #dev-error{
-      display:none;margin-top:10px;
-      font-family:'JetBrains Mono',monospace;
-      font-size:11px;
-      color:#ef4444;
-    }
+        /* UI ELEMENTS */
+        .sci-input {
+            width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+            padding: 16px; border-radius: 4px; color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace; font-size: 14px; outline: none; transition: 0.3s;
+        }
+        .sci-input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 245, 255, 0.15); }
+        
+        .sci-btn {
+            background: var(--neon-cyan); color: #000; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 2px; padding: 16px; border-radius: 4px; transition: 0.2s;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
+        }
+        .sci-btn:hover { background: #fff; box-shadow: 0 0 30px var(--neon-cyan); }
+        .sci-btn:active { transform: scale(0.98); }
 
-    #coding-drawer{
-      position:fixed;top:0;right:0;height:100vh;width:min(520px, 96vw);
-      transform:translateX(110%);
-      z-index:10040;
-      display:flex;flex-direction:column;
-      background:rgba(0,0,0,.82);
-      border-left:1px solid rgba(0,245,255,.16);
-      backdrop-filter:blur(18px);
-      box-shadow:-20px 0 60px rgba(0,245,255,.08);
-    }
-    #coding-drawer-header{
-      padding:14px 14px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-    }
-    #coding-drawer-header .title{
-      display:flex;align-items:center;gap:10px;
-      font-family:'JetBrains Mono',monospace;
-      font-size:12px;
-      letter-spacing:.18em;text-transform:uppercase;
-      color:rgba(0,245,255,.92);
-    }
-    #coding-close{
-      font-family:'JetBrains Mono',monospace;
-      font-size:11px;
-      color:rgba(255,255,255,.8);
-      border:1px solid rgba(255,255,255,.12);
-      padding:6px 10px;border-radius:10px;
-      background:rgba(255,255,255,.04);
-      cursor:pointer;
-    }
-    #coding-close:hover{background:rgba(255,255,255,.08);}
-    #coding-drawer-body{
-      padding:14px;
-      overflow:auto;
-      display:flex;flex-direction:column;gap:12px;
-    }
-    .coding-card{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.03);
-      border-radius:14px;
-      padding:12px;
-    }
-    .coding-label{
-      font-family:'JetBrains Mono',monospace;
-      font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-      color:rgba(255,255,255,.6);
-      margin-bottom:8px;
-    }
-    .coding-text{
-      font-family:'JetBrains Mono',monospace;
-      font-size:12px;
-      color:rgba(226,232,240,.92);
-      white-space:pre-wrap;
-      line-height:1.35;
-    }
-    #coding-editor{
-      width:100%;
-      min-height:220px;
-      resize:vertical;
-      font-family:'JetBrains Mono',monospace;
-      font-size:12px;
-      padding:12px;
-      border-radius:12px;
-      color:#e2e8f0;
-      background:rgba(0,0,0,.55);
-      border:1px solid rgba(0,245,255,.14);
-      outline:none;
-    }
-    #coding-editor:focus{
-      border-color:rgba(0,245,255,.42);
-      box-shadow:0 0 22px rgba(0,245,255,.12);
-    }
-    #coding-actions{
-      display:flex;gap:10px;align-items:center;justify-content:space-between;
-    }
-    #coding-submit{
-      flex:1;
-      background:var(--neon-cyan);
-      color:#000;
-      font-weight:900;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-family:'JetBrains Mono',monospace;
-      font-size:11px;
-      padding:12px 12px;
-      border-radius:12px;
-      transition:.2s;
-    }
-    #coding-submit:hover{background:#fff;box-shadow:0 0 30px rgba(0,245,255,.35);}
-    #coding-skip{
-      background:rgba(255,255,255,.05);
-      color:rgba(255,255,255,.85);
-      border:1px solid rgba(255,255,255,.12);
-      font-family:'JetBrains Mono',monospace;
-      font-size:11px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      padding:12px 12px;
-      border-radius:12px;
-      transition:.2s;
-      width:140px;
-    }
-    #coding-skip:hover{background:rgba(255,255,255,.08);}
-    #coding-status{
-      font-family:'JetBrains Mono',monospace;
-      font-size:11px;
-      color:rgba(255,255,255,.72);
-    }
+        /* LOCKED FEATURE */
+        .locked-option { opacity: 0.5; cursor: not-allowed; position: relative; border: 1px solid #333; }
+        .locked-badge { position: absolute; right: 10px; top: 10px; font-size: 9px; background: var(--neon-pink); color: white; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
 
-    .persona-card.active{
-      border-color:rgba(0,245,255,.55) !important;
-      background:rgba(0,245,255,.07) !important;
-      box-shadow:0 0 18px rgba(0,245,255,.12);
-    }
-  </style>
+        /* ANIMATIONS */
+        .msg-enter { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+        .typing-cursor::after { content: '█'; animation: blink 0.8s infinite; color: var(--neon-cyan); margin-left: 4px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* STRESS BAR */
+        .stress-container { width: 100%; height: 4px; background: #333; margin-top: 8px; position: relative; overflow: hidden; }
+        .stress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-amber), var(--neon-pink)); width: 0%; transition: width 0.5s ease; }
+
+        /* THEME SELECTOR SCROLLBAR */
+        .theme-scroll::-webkit-scrollbar { height: 0px; background: transparent; }
+
+        /* PERSONA BUTTONS */
+        .persona-btn {
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .persona-btn.active {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 245, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
+        }
+    </style>
 </head>
-
 <body class="flex items-center justify-center h-screen w-screen">
 
-  <div class="scanlines"></div>
-  <canvas id="starfield" class="fixed inset-0 z-0 opacity-80"></canvas>
+    <div class="scanlines"></div>
+    <canvas id="starfield" class="fixed inset-0 z-0 opacity-80"></canvas>
 
-  <div id="toast-stack"></div>
+    <div class="fixed top-6 right-6 z-50 flex gap-4">
+        <button onclick="toggleAudio()" id="audio-btn" class="text-xs font-mono text-cyan-500 border border-cyan-500/30 px-3 py-1 hover:bg-cyan-500/10 transition-colors">[AUDIO: OFF]</button>
+    </div>
 
-  <div class="fixed top-6 right-6 z-50 flex gap-4">
-    <button onclick="toggleAudio()" id="audio-btn" class="text-xs font-mono text-cyan-500 border border-cyan-500/30 px-3 py-1 hover:bg-cyan-500/10 transition-colors">[AUDIO: OFF]</button>
-  </div>
+    <section id="setup-view" class="relative z-10 w-full max-w-5xl flex gap-8 p-4">
+        <div class="flex-1 glass-panel p-10 rounded-lg relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
+            <h1 class="text-5xl font-bold tracking-tighter mb-2">ANTERVIEW<span class="text-cyan-400">.OS</span></h1>
+            <p class="text-xs mono text-slate-500 mb-8 tracking-[0.2em]">NEURAL LINK STATUS: ONLINE</p>
 
-  <section id="setup-view" class="relative z-10 w-full max-w-4xl flex gap-8 p-4">
-    <div class="flex-1 glass-panel p-10 rounded-lg relative overflow-hidden">
-      <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
-      <h1 class="text-5xl font-bold tracking-tighter mb-2">ANTERVIEW<span class="text-cyan-400">.OS</span></h1>
-      <p class="text-xs mono text-slate-500 mb-8 tracking-[0.2em]">NEURAL LINK STATUS: ONLINE</p>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Target Vector (Job Title)</label>
+                    <input id="job-title" type="text" placeholder="e.g. Senior Solidity Engineer" class="sci-input">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer hover:bg-cyan-500/10 transition-colors" onclick="selectMode(this, 'free')">
+                        <div class="text-cyan-400 font-bold text-sm mb-1">STANDARD PROTOCOL</div>
+                        <div class="text-[10px] text-slate-400">Public Sector Neural Net</div>
+                    </div>
+                    
+                    <div id="pro-card" class="p-4 border border-white/10 bg-black/40 rounded locked-option transition-all duration-300">
+                        <div class="locked-badge">PRO ($9)</div>
+                        <div class="text-slate-500 font-bold text-sm mb-1">FAANG SIMULATION</div>
+                        <div class="text-[10px] text-slate-600">Enterprise High-Stress AI</div>
+                    </div>
+                </div>
 
-      <div class="space-y-6">
-        <div>
-          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Target Vector (Job Title)</label>
-          <input id="job-title" type="text" placeholder="e.g. Senior Solidity Engineer" class="sci-input">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Interviewer Persona</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="persona-btn active p-3 rounded text-center" onclick="setPersona('herman', this)">
+                            <div class="text-[10px] font-bold">HERMAN</div>
+                            <div class="text-[8px] text-slate-500">Brutal</div>
+                        </div>
+                        <div class="persona-btn p-3 rounded text-center" onclick="setPersona('ivy', this)">
+                            <div class="text-[10px] font-bold">IVY</div>
+                            <div class="text-[8px] text-slate-500">Coaching</div>
+                        </div>
+                        <div class="persona-btn p-3 rounded text-center" onclick="setPersona('vex', this)">
+                            <div class="text-[10px] font-bold">VEX</div>
+                            <div class="text-[8px] text-slate-500">Chaos</div>
+                        </div>
+                        <div id="chen-btn" class="persona-btn p-3 rounded text-center opacity-40 cursor-not-allowed">
+                            <div class="text-[10px] font-bold">CHEN</div>
+                            <div class="text-[8px] text-slate-500">Staff Eng</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Tech Stack</label>
+                    <select id="stack" class="sci-input">
+                        <option value="Python & AWS">Python / AWS</option>
+                        <option value="React & Node">React / Node.js</option>
+                        <option value="Rust & Solana">Rust / Solana</option>
+                    </select>
+                </div>
+
+                <button onclick="bootSystem()" class="sci-btn w-full mt-4 flex justify-center items-center gap-2">
+                    <span>INITIALIZE INTERVIEW</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div class="p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer hover:bg-cyan-500/10 transition-colors" onclick="selectMode(this, 'free')">
-            <div class="text-cyan-400 font-bold text-sm mb-1">STANDARD PROTOCOL</div>
-            <div class="text-[10px] text-slate-400">Persona: Select below</div>
-          </div>
-
-          <div id="pro-card" class="p-4 border border-white/10 bg-black/40 rounded locked-option transition-all duration-300">
-            <div class="locked-badge">PRO ($9)</div>
-            <div class="text-slate-500 font-bold text-sm mb-1">FAANG SIMULATION</div>
-            <div class="text-[10px] text-slate-600">Persona: Committee / Bar Raiser</div>
-          </div>
+        <div class="w-72 glass-panel p-6 rounded-lg hidden md:block">
+            <div class="text-[10px] mono text-cyan-500 mb-4 border-b border-cyan-500/20 pb-2">SESSION LOGS</div>
+            <div id="boot-log" class="text-[9px] mono text-slate-400 space-y-1 opacity-70">
+                <div>> Kernel loaded...</div>
+                <div>> Waiting for identity...</div>
+            </div>
         </div>
+    </section>
 
-        <div>
-          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Interviewer Personality</label>
-          <div class="grid grid-cols-2 gap-3">
-            <button type="button" class="persona-card p-3 rounded border border-white/10 bg-white/5 hover:bg-white/8 transition-all text-left" onclick="selectPersona('herman')">
-              <div class="text-[11px] font-bold tracking-tight text-white">Herman</div>
-              <div class="text-[10px] mono text-slate-400">Brutal · roast-first · precision</div>
-            </button>
-            <button type="button" class="persona-card p-3 rounded border border-white/10 bg-white/5 hover:bg-white/8 transition-all text-left" onclick="selectPersona('ivy')">
-              <div class="text-[11px] font-bold tracking-tight text-white">Ivy</div>
-              <div class="text-[10px] mono text-slate-400">Kind · sharp · coaching</div>
-            </button>
-            <button type="button" class="persona-card p-3 rounded border border-white/10 bg-white/5 hover:bg-white/8 transition-all text-left" onclick="selectPersona('vex')">
-              <div class="text-[11px] font-bold tracking-tight text-white">Vex</div>
-              <div class="text-[10px] mono text-slate-400">Chaos · fast · edge cases</div>
-            </button>
-            <button type="button" class="persona-card p-3 rounded border border-white/10 bg-white/5 hover:bg-white/8 transition-all text-left" onclick="selectPersona('atlas')">
-              <div class="text-[11px] font-bold tracking-tight text-white">Atlas</div>
-              <div class="text-[10px] mono text-slate-400">Systems · depth · calm</div>
-            </button>
-          </div>
-          <div class="mt-2 text-[10px] mono text-slate-500">Pro unlock adds “Committee / Bar Raiser” variants.</div>
+    <main id="chat-view" class="fixed inset-0 z-20 hidden flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-5xl h-[85vh] glass-panel rounded-lg flex overflow-hidden shadow-2xl border-t border-cyan-500/50">
+            
+            <div class="w-64 bg-black/40 border-r border-white/5 p-6 flex flex-col gap-6 hidden md:flex">
+                <div>
+                    <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Neural Status</div>
+                    <div class="p-2 bg-cyan-500/10 border border-cyan-500/20 rounded">
+                        <div class="text-[10px] font-bold text-cyan-400" id="current-persona-display">HERMAN.AI</div>
+                        <div class="text-[8px] text-slate-500 uppercase">Mode: Theory</div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Stress Monitor</div>
+                    <div class="stress-container rounded-full">
+                        <div id="stress-bar" class="stress-fill"></div>
+                    </div>
+                    <div class="flex justify-between mt-1 text-[8px] mono text-slate-500">
+                        <span>CALM</span><span>PANIC</span>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col overflow-hidden">
+                    <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Neural Logic Logs</div>
+                    <div id="neural-logs" class="flex-1 overflow-y-auto space-y-1 pr-2">
+                        <div class="log-entry" style="color: #00f5ff; font-size: 10px; opacity: 0.7; font-family: monospace;">> Link established.</div>
+                    </div>
+                </div>
+
+                <div class="mt-auto">
+                    <div class="p-3 bg-red-500/10 border border-red-500/20 rounded mb-2">
+                        <div class="text-[9px] text-red-400 font-bold mb-1">LIVE FEEDBACK</div>
+                        <div class="text-[8px] text-red-300 opacity-70">"Stop hesitating. Your typing speed suggests uncertainty."</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col relative bg-gradient-to-b from-transparent to-black/20">
+                <div class="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-white/2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></div>
+                        <span class="text-[10px] mono text-emerald-400 tracking-widest">ENCRYPTED CONNECTION</span>
+                    </div>
+                    <div class="text-[10px] mono text-slate-500">SESSION ID: <span class="text-white">#X99-ALPHA</span></div>
+                </div>
+
+                <div id="chat-scroll" class="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar"></div>
+
+                <div class="p-6 border-t border-white/5 bg-black/40 relative">
+                    <input id="user-input" type="text" placeholder="Type your response..." class="w-full bg-white/5 border border-white/10 rounded p-4 text-sm text-white focus:border-cyan-500/50 outline-none mono transition-all" autocomplete="off" onkeypress="if(event.key==='Enter') sendMsg()">
+                    <div id="typing-indicator" class="absolute right-10 top-10 text-[10px] mono text-cyan-500 opacity-0 transition-opacity">AI PROCESSING...</div>
+                </div>
+            </div>
         </div>
+    </main>
 
-        <div>
-          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Tech Stack</label>
-          <select id="stack" class="sci-input">
-            <option value="Python & AWS">Python / AWS</option>
-            <option value="React & Node">React / Node.js</option>
-            <option value="Rust & Solana">Rust / Solana</option>
-          </select>
+    <section id="results-view" class="fixed inset-0 z-30 hidden bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="w-full max-w-3xl glass-panel rounded-lg p-10 border border-white/10 relative overflow-hidden">
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+                <div class="flex justify-between items-end border-b border-white/10 pb-6 mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold tracking-tight mb-2">EVALUATION COMPLETE</h2>
+                        <p class="text-xs mono text-slate-400">DATA UPLOADED TO CLOUD</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">HIREABILITY INDEX</div>
+                        <div id="final-score" class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">--%</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-8 mb-8">
+                    <div class="col-span-2 space-y-4">
+                        <div class="text-sm text-slate-300 leading-relaxed font-light p-4 bg-white/5 rounded border border-white/5" id="final-summary">
+                            Calculating trajectory...
+                        </div>
+                        <div id="affiliate-container"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-[10px] font-bold text-slate-500 uppercase">Improvement Areas</div>
+                        <ul id="tips-list" class="text-xs text-slate-400 space-y-2 mono"></ul>
+                        
+                        <button onclick="downloadReport()" class="w-full mt-6 border border-white/20 hover:bg-white/5 text-xs text-white py-3 rounded uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Download PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end pt-6 border-t border-white/5">
+                    <button onclick="location.reload()" class="sci-btn text-xs px-8 py-3">NEW SESSION</button>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <button onclick="bootSystem()" class="sci-btn w-full mt-4 flex justify-center items-center gap-2">
-          <span>INITIALIZE</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+    <div id="unlock-modal" style="display: none;" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center">
+        <div class="w-96 glass-panel p-8 rounded-lg border-2 border-purple-500 relative overflow-hidden transform scale-0" id="unlock-container">
+            <div class="absolute inset-0 bg-purple-900/20 animate-pulse"></div>
+            <div class="relative z-10 text-center">
+                <div class="text-4xl mb-4">🔓</div>
+                <h3 class="text-2xl font-bold text-purple-400 mb-2 tracking-widest">ACCESS GRANTED</h3>
+                <p class="text-xs mono text-purple-300 mb-6">OVERRIDING SECURITY PROTOCOLS...</p>
+                <div class="w-full h-1 bg-gray-800 rounded overflow-hidden">
+                    <div class="h-full bg-purple-500 w-0" id="unlock-progress"></div>
+                </div>
+                <div class="mt-4 text-[10px] mono text-purple-400" id="unlock-text">DECRYPTING...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="theme-dock" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-3 rounded-full glass-panel scale-90 opacity-60 hover:opacity-100 hover:scale-100 transition-all duration-300 backdrop-blur-md theme-scroll" style="max-width: 90vw; overflow-x: auto;">
+        <span class="text-[9px] mono text-slate-500 hidden md:block pl-2">THEME_OS:</span>
+        <button onclick="setTheme('cyan')" class="w-8 h-8 rounded-full border border-cyan-500 bg-cyan-900/50 hover:bg-cyan-500 hover:shadow-[0_0_15px_#06b6d4] transition-all relative group">
+            <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-cyan-500 text-cyan-500 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">CYBERPUNK</div>
         </button>
-      </div>
+        <button onclick="setTheme('red')" class="w-8 h-8 rounded-full border border-red-600 bg-red-900/50 hover:bg-red-600 hover:shadow-[0_0_15px_#dc2626] transition-all relative group">
+            <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-red-600 text-red-600 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">PREDATOR</div>
+        </button>
+        <button onclick="setTheme('green')" class="w-8 h-8 rounded-full border border-green-500 bg-green-900/50 hover:bg-green-500 hover:shadow-[0_0_15px_#22c55e] transition-all relative group">
+            <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-green-500 text-green-500 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">MATRIX</div>
+        </button>
+        <button onclick="setTheme('amber')" class="w-8 h-8 rounded-full border border-amber-500 bg-amber-900/50 hover:bg-amber-500 hover:shadow-[0_0_15px_#f59e0b] transition-all relative group">
+            <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-amber-500 text-amber-500 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">DEUS EX</div>
+        </button>
+        <button onclick="setTheme('white')" class="w-8 h-8 rounded-full border border-white bg-slate-800 hover:bg-white hover:shadow-[0_0_15px_#ffffff] transition-all relative group">
+            <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-white text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">INSTITUTE</div>
+        </button>
     </div>
 
-    <div class="w-64 glass-panel p-6 rounded-lg hidden md:block">
-      <div class="text-[10px] mono text-cyan-500 mb-4 border-b border-cyan-500/20 pb-2">SYSTEM LOGS</div>
-      <div id="boot-log" class="text-[9px] mono text-slate-400 space-y-1 opacity-70">
-        <div>> Kernel loaded...</div>
-      </div>
-    </div>
-  </section>
-
-  <main id="chat-view" class="fixed inset-0 z-20 hidden flex flex-col items-center justify-center p-4">
-    <div class="w-full max-w-5xl h-[85vh] glass-panel rounded-lg flex overflow-hidden shadow-2xl border-t border-cyan-500/50">
-      <div class="w-64 bg-black/40 border-r border-white/5 p-6 flex flex-col gap-6 hidden md:flex">
-        <div>
-          <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Stress Monitor</div>
-          <div class="stress-container rounded-full">
-            <div id="stress-bar" class="stress-fill"></div>
-          </div>
-          <div class="flex justify-between mt-1 text-[8px] mono text-slate-500">
-            <span>CALM</span><span>PANIC</span>
-          </div>
+    <div id="network-monitor" class="fixed bottom-0 left-0 w-full h-48 bg-black border-t-2 border-green-500 z-[100] hidden font-mono text-[10px] p-2 overflow-hidden shadow-[0_0_50px_rgba(0,255,0,0.2)]">
+        <div class="flex justify-between items-center border-b border-green-500/30 pb-1 mb-2">
+            <span class="text-green-500 font-bold">>> GOD_MODE_NETWORK_TRAFFIC</span>
+            <button onclick="document.getElementById('network-monitor').style.display='none'" class="text-green-500 hover:bg-green-500/20 px-2">[HIDE]</button>
         </div>
-
-        <div>
-          <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Question Progress</div>
-          <div class="text-4xl font-bold text-white mono" id="q-counter">01<span class="text-lg text-slate-600">/05</span></div>
-        </div>
-
-        <div class="mt-auto">
-          <div class="p-3 bg-red-500/10 border border-red-500/20 rounded mb-2">
-            <div class="text-[9px] text-red-400 font-bold mb-1">LIVE FEEDBACK</div>
-            <div id="live-feedback" class="text-[8px] text-red-300 opacity-70">"Stop hesitating. Your typing speed suggests uncertainty."</div>
-          </div>
-
-          <div class="p-3 bg-cyan-500/5 border border-cyan-500/15 rounded">
-            <div class="text-[9px] text-cyan-300 font-bold mb-1">CODING PERFORMANCE</div>
-            <div class="text-[8px] mono text-slate-300 opacity-80">
-              <div>> Challenges: <span id="coding-count">0</span></div>
-              <div>> Passed: <span id="coding-passed">0</span></div>
-              <div>> Score: <span id="coding-score">0</span></div>
+        <div id="network-logs" class="h-full overflow-y-auto space-y-2 pb-8 text-green-400/80">
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex-1 flex flex-col relative bg-gradient-to-b from-transparent to-black/20">
-        <div class="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-white/2">
-          <div class="flex items-center gap-2">
-            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></div>
-            <span class="text-[10px] mono text-emerald-400 tracking-widest">ENCRYPTED CONNECTION</span>
-          </div>
-          <div class="text-[10px] mono text-slate-500">SESSION ID: <span class="text-white">#X99-ALPHA</span></div>
-        </div>
-
-        <div id="chat-scroll" class="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar"></div>
-
-        <div class="p-6 border-t border-white/5 bg-black/40 relative">
-          <input id="user-input" type="text" placeholder="Type your response..." class="w-full bg-white/5 border border-white/10 rounded p-4 text-sm text-white focus:border-cyan-500/50 outline-none mono transition-all" autocomplete="off" onkeypress="if(event.key==='Enter') sendMsg()">
-          <div id="typing-indicator" class="absolute right-10 top-10 text-[10px] mono text-cyan-500 opacity-0 transition-opacity">AI PROCESSING...</div>
-        </div>
-      </div>
     </div>
-  </main>
 
-  <section id="results-view" class="fixed inset-0 z-30 hidden bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
-    <div class="w-full max-w-3xl glass-panel rounded-lg p-10 border border-white/10 relative overflow-hidden">
-      <div class="absolute -right-20 -top-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl"></div>
-
-      <div class="relative z-10">
-        <div class="flex justify-between items-end border-b border-white/10 pb-6 mb-8">
-          <div>
-            <h2 class="text-3xl font-bold tracking-tight mb-2">EVALUATION COMPLETE</h2>
-            <p class="text-xs mono text-slate-400">DATA UPLOADED TO CLOUD</p>
-          </div>
-          <div class="text-right">
-            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">HIREABILITY INDEX</div>
-            <div id="final-score" class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">--%</div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-8 mb-8">
-          <div class="col-span-2 space-y-4">
-            <div class="text-sm text-slate-300 leading-relaxed font-light p-4 bg-white/5 rounded border border-white/5" id="final-summary">Calculating trajectory...</div>
-            <div class="p-4 bg-cyan-500/5 border border-cyan-500/15 rounded">
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Coding Addendum</div>
-              <div class="text-[11px] mono text-slate-300 opacity-90" id="coding-addendum">No coding challenges attempted.</div>
+    <div id="dev-console-overlay" style="display: none;" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center">
+        <div class="w-96 glass-panel p-8 rounded-lg border-2 border-cyan-500 relative overflow-hidden">
+            <div class="absolute inset-0 bg-cyan-900/20 animate-pulse"></div>
+            <div class="relative z-10">
+                <p class="text-cyan-400 font-mono text-sm mb-4 tracking-widest">> SYSTEM OVERRIDE DETECTED</p>
+                <input type="text" id="dev-password-input" placeholder="ENTER PASSCODE..." class="w-full bg-transparent border-b border-cyan-500 text-cyan-300 font-mono text-lg outline-none py-2 focus:border-cyan-300 transition-colors" autocomplete="off">
+                <p id="dev-error" style="display: none;" class="text-red-500 font-mono text-xs mt-4">> ACCESS DENIED</p>
             </div>
-            <div id="affiliate-container"></div>
-          </div>
-
-          <div class="space-y-2">
-            <div class="text-[10px] font-bold text-slate-500 uppercase">Improvement Areas</div>
-            <ul id="tips-list" class="text-xs text-slate-400 space-y-2 mono"></ul>
-
-            <button onclick="downloadReport()" class="w-full mt-6 border border-white/20 hover:bg-white/5 text-xs text-white py-3 rounded uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-              Download PDF
-            </button>
-          </div>
         </div>
-
-        <div class="flex justify-end pt-6 border-t border-white/5">
-          <button onclick="location.reload()" class="sci-btn text-xs px-8 py-3">NEW SESSION</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div id="theme-dock" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-3 rounded-full glass-panel scale-90 opacity-60 hover:opacity-100 hover:scale-100 transition-all duration-300 backdrop-blur-md theme-scroll" style="max-width: 90vw; overflow-x: auto;">
-    <span class="text-[9px] mono text-slate-500 hidden md:block pl-2">THEME_OS:</span>
-    <button onclick="setTheme('cyan')" class="w-8 h-8 rounded-full border border-cyan-500 bg-cyan-900/50 hover:bg-cyan-500 hover:shadow-[0_0_15px_#06b6d4] transition-all relative group">
-      <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-cyan-500 text-cyan-500 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">CYBERPUNK</div>
-    </button>
-    <button onclick="setTheme('red')" class="w-8 h-8 rounded-full border border-red-600 bg-red-900/50 hover:bg-red-600 hover:shadow-[0_0_15px_#dc2626] transition-all relative group">
-      <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-red-600 text-red-600 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">PREDATOR</div>
-    </button>
-    <button onclick="setTheme('green')" class="w-8 h-8 rounded-full border border-green-500 bg-green-900/50 hover:bg-green-500 hover:shadow-[0_0_15px_#22c55e] transition-all relative group">
-      <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-green-500 text-green-500 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">MATRIX</div>
-    </button>
-    <button onclick="setTheme('amber')" class="w-8 h-8 rounded-full border border-amber-500 bg-amber-900/50 hover:bg-amber-500 hover:shadow-[0_0_15px_#f59e0b] transition-all relative group">
-      <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-amber-500 text-amber-500 text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">DEUS EX</div>
-    </button>
-    <button onclick="setTheme('white')" class="w-8 h-8 rounded-full border border-white bg-slate-800 hover:bg-white hover:shadow-[0_0_15px_#ffffff] transition-all relative group">
-      <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black border border-white text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">INSTITUTE</div>
-    </button>
-  </div>
-
-  <div id="network-monitor" class="fixed bottom-0 left-0 w-full h-48 bg-black border-t-2 border-green-500 z-[100] hidden font-mono text-[10px] p-2 overflow-hidden shadow-[0_0_50px_rgba(0,255,0,0.2)]">
-    <div class="flex justify-between items-center border-b border-green-500/30 pb-1 mb-2">
-      <span class="text-green-500 font-bold">>> GOD_MODE_NETWORK_TRAFFIC</span>
-      <button onclick="document.getElementById('network-monitor').style.display='none'" class="text-green-500 hover:bg-green-500/20 px-2">[HIDE]</button>
-    </div>
-    <div id="network-logs" class="h-full overflow-y-auto space-y-2 pb-8 text-green-400/80"></div>
-  </div>
-
-  <div id="dev-console-overlay">
-    <div id="dev-console-card">
-      <div class="inner">
-        <div id="dev-console-title">
-          <div class="left">
-            <div class="pulse-dot"></div>
-            <div class="txt">SYSTEM OVERRIDE INTERFACE</div>
-          </div>
-          <button id="dev-close" type="button">[CLOSE]</button>
-        </div>
-
-        <div class="text-[11px] mono text-slate-300 opacity-85 mb-3">Enter passcode. Invalid entries will be logged.</div>
-        <input type="text" id="dev-password-input" placeholder="ENTER PASSCODE..." autocomplete="off" />
-        <div id="dev-hint"><span class="opacity-70">> Keys captured</span><span class="opacity-70 mono">ESC closes</span></div>
-        <div id="dev-error">> ACCESS DENIED</div>
-      </div>
-    </div>
-  </div>
-
-  <aside id="coding-drawer" aria-hidden="true">
-    <div id="coding-drawer-header">
-      <div class="title">
-        <span class="pulse-dot" style="width:9px;height:9px;"></span>
-        <span>CODING CONSOLE</span>
-      </div>
-      <button id="coding-close" type="button">[CLOSE]</button>
     </div>
 
-    <div id="coding-drawer-body">
-      <div class="coding-card">
-        <div class="coding-label">Task</div>
-        <div id="coding-task" class="coding-text">Loading…</div>
-      </div>
+    <script>
+        /* =========================================
+           SYSTEM: AUDIO ENGINE (Synthesized SFX)
+           ========================================= */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioEnabled = false;
 
-      <div class="coding-card">
-        <div class="coding-label">What to code</div>
-        <div id="coding-what" class="coding-text">Loading…</div>
-      </div>
-
-      <div class="coding-card">
-        <div class="coding-label">Starter / Notes</div>
-        <div id="coding-starter" class="coding-text">Loading…</div>
-      </div>
-
-      <div class="coding-card">
-        <div class="coding-label">Your solution</div>
-        <textarea id="coding-editor" placeholder="Paste your code here…"></textarea>
-
-        <div id="coding-actions" class="mt-3">
-          <button id="coding-submit" type="button">SUBMIT</button>
-          <button id="coding-skip" type="button">SKIP</button>
-        </div>
-        <div id="coding-status" class="mt-3">Status: idle</div>
-      </div>
-    </div>
-  </aside>
-
-  <script>
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let audioEnabled = false;
-
-    function toggleAudio() {
-      audioEnabled = !audioEnabled;
-      document.getElementById('audio-btn').innerText = audioEnabled ? "[AUDIO: ON]" : "[AUDIO: OFF]";
-      if(audioEnabled) playTone(440, 'sine', 0.1);
-    }
-
-    function playTone(freq, type, duration) {
-      if(!audioEnabled) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    }
-
-    function sfxType(){ playTone(800 + Math.random()*200, 'square', 0.05); }
-    function sfxSend(){ playTone(400,'sine',0.3); playTone(600,'sine',0.3); }
-    function sfxAlert(){ playTone(200,'sawtooth',0.4); }
-    function sfxOk(){ playTone(520,'square',0.08); setTimeout(()=>playTone(740,'square',0.12), 80); }
-
-    function showToast(message, type="info", label=null){
-      const stack = document.getElementById('toast-stack');
-      const el = document.createElement('div');
-      el.className = `toast ${type}`;
-      el.innerHTML = `<div class="badge">${label || type.toUpperCase()}</div><div class="msg">${escapeHTML(message)}</div>`;
-      stack.prepend(el);
-      gsap.fromTo(el, {y:-12, opacity:0, scale:0.98}, {y:0, opacity:1, scale:1, duration:0.35, ease:"power3.out"});
-      gsap.to(el, {opacity:0, y:-8, duration:0.35, ease:"power2.in", delay:2.6, onComplete:()=>el.remove()});
-    }
-
-    const cvs = document.getElementById('starfield');
-    const ctx = cvs.getContext('2d');
-    let w, h, stars = [], mouse = {x:0, y:0};
-
-    function resize(){ w = cvs.width = window.innerWidth; h = cvs.height = window.innerHeight; initStars(); }
-    class Star{
-      constructor(){ this.x=Math.random()*w; this.y=Math.random()*h; this.z=Math.random()*2; this.size=Math.random()*2.5+0.5; }
-      update(){
-        this.x += (mouse.x - w/2) * 0.0005 * this.z;
-        this.y += (mouse.y - h/2) * 0.0005 * this.z;
-        if(this.x<0) this.x=w; if(this.x>w) this.x=0;
-        if(this.y<0) this.y=h; if(this.y>h) this.y=0;
-      }
-      draw(){ ctx.fillStyle=`rgba(255,255,255,${0.7*this.z})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
-    }
-    function initStars(){ stars=[]; for(let i=0;i<300;i++) stars.push(new Star()); }
-    function animate(){ ctx.clearRect(0,0,w,h); stars.forEach(s=>{s.update(); s.draw()}); requestAnimationFrame(animate); }
-    window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', e => { mouse.x=e.clientX; mouse.y=e.clientY; });
-    resize(); animate();
-
-    let history = [], currentQ = 1, maxQ = 5;
-    let stress = 20;
-    let isGodMode = false;
-
-    const coding = { attempted: 0, passed: 0, score: 0, logs: [] };
-
-    let awaitingCodingReady = false;
-    let codingDrawerOpen = false;
-    let currentCodingTask = null;
-    let inCodingGateCheck = false;
-
-    const AUTO_CODING = { enabled: true, minQuestionIndex: 1, checkCooldownMs: 650, maxAttemptsPerQuestion: 1 };
-    let lastGateCheckAt = 0;
-    let gateChecksByQuestion = {};
-
-    function log(msg){
-      const el = document.getElementById('boot-log');
-      el.innerHTML += `<div>> ${escapeHTML(msg)}</div>`;
-    }
-    setTimeout(()=>log("Loading assets..."), 500);
-    setTimeout(()=>log("Connecting to neural net..."), 1200);
-
-    const personas = {
-      herman: { name: "HERMAN", prompt: `You are Herman, a brutal technical interviewer. You roast vague answers. You value precision and depth.` },
-      ivy: { name: "IVY", prompt: `You are Ivy, a kind but extremely sharp interviewer. You coach briefly, then raise the bar. You demand clarity without being cruel.` },
-      vex: { name: "VEX", prompt: `You are Vex, a fast, chaotic interviewer. You love edge-cases, performance constraints, and adversarial testing. You move quickly.` },
-      atlas: { name: "ATLAS", prompt: `You are Atlas, a calm systems interviewer. You care about tradeoffs, architecture, correctness, and clean reasoning.` },
-      committee: { name: "COMMITTEE", proOnly: true, prompt: `You are a FAANG L5 hiring committee. You speak like a panel: structured, strict, rubric-driven. You demand signal.` },
-      barraiser: { name: "BAR RAISER", proOnly: true, prompt: `You are a Bar Raiser. You probe for ownership, impact, and depth. You reject hand-waving and ask follow-up traps.` }
-    };
-
-    let selectedMode = "free";
-    let selectedPersona = "herman";
-
-    function selectMode(el, mode){
-      document.querySelectorAll('#setup-view .border-cyan-500\\/50').forEach(c=>{
-        c.className = "p-4 border border-white/10 bg-black/40 rounded cursor-pointer hover:bg-white/5 transition-colors";
-        const t = c.querySelector('.font-bold');
-        if(t) t.className = "text-slate-400 font-bold text-sm mb-1";
-      });
-      el.className = "p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer transition-colors shadow-[0_0_15px_rgba(0,245,255,0.1)]";
-      const head = el.querySelector('.font-bold');
-      if(head) head.className = "text-cyan-400 font-bold text-sm mb-1";
-      selectedMode = mode;
-      playTone(600,'sine',0.05);
-      showToast(`Mode set: ${mode.toUpperCase()}`, "info", "MODE");
-    }
-
-    function selectPersona(key){
-      const p = personas[key];
-      if(!p) return;
-      const isProPersona = !!p.proOnly;
-      const proUnlocked = document.getElementById('pro-card')?.classList.contains('cursor-pointer') && !document.getElementById('pro-card')?.classList.contains('locked-option');
-      if(isProPersona && !(selectedMode === "pro" && proUnlocked)){
-        showToast(`Locked: ${p.name}. Unlock Pro to use it.`, "err", "LOCKED");
-        sfxAlert();
-        return;
-      }
-      selectedPersona = key;
-      document.querySelectorAll('.persona-card').forEach(btn=>btn.classList.remove('active'));
-      const btn = Array.from(document.querySelectorAll('.persona-card')).find(b => (b.getAttribute('onclick') || "").includes(`'${key}'`) || (b.getAttribute('onclick') || "").includes(`"${key}"`));
-      if(btn) btn.classList.add('active');
-      showToast(`Persona selected: ${p.name}`, "ok", "PERSONA");
-      sfxOk();
-    }
-
-    window.addEventListener('DOMContentLoaded', () => selectPersona('herman'));
-
-    function getPersonaName(){
-      const p = personas[selectedPersona] || personas.herman;
-      return p.name;
-    }
-
-    function buildSysPrompt(){
-      const job = document.getElementById('job-title').value || "Engineer";
-      const stack = document.getElementById('stack').value;
-      const personaObj = personas[selectedPersona] || personas.herman;
-      const personaPrompt = personaObj.prompt;
-      const proFlavor = (selectedMode === "pro") ? `PRO MODE: Stricter, rubric-based, hiring-bar vibe.` : `STANDARD MODE: Intense but human.`;
-      return `${personaPrompt}
-Job: ${job}. Stack: ${stack}.
-${proFlavor}
-
-INTERVIEW RULES:
-1) Ask ONE hard question at a time, tailored to the role and stack.
-2) Max ${maxQ} questions total.
-3) Be strict about vagueness; request specifics and examples.
-4) Use stressLevel if provided: if user is short/weak, apply pressure.
-5) After you ask each interview question, you may include "Reply READY or SKIP" but the system may auto-open coding if theory is strong.
-6) When you are done, output [END] on its own line.`;
-    }
-
-    function bootSystem(){
-      playTone(100,'sawtooth',1.0);
-      const tl = gsap.timeline();
-      tl.to("#setup-view",{opacity:0,scale:0.9,duration:0.5,onComplete:()=>{
-        document.getElementById('setup-view').style.display='none';
-        document.getElementById('chat-view').classList.remove('hidden');
-        initInterview();
-      }})
-      .from("#chat-view",{opacity:0,scale:1.05,duration:0.8});
-    }
-
-    function initInterview(){
-      history = [];
-      currentQ = 1;
-      gateChecksByQuestion = {};
-      const sysPrompt = buildSysPrompt();
-      history.push({role:"system", content: sysPrompt});
-      callAI("Start interview.", { skipCounter: true });
-    }
-
-    async function sendMsg(){
-      const inputEl = document.getElementById('user-input');
-      const txt = inputEl.value.trim();
-      if(!txt) return;
-
-      if(awaitingCodingReady){
-        const low = txt.toLowerCase();
-        if(["ready","r","yes","y","ok","okay","go"].includes(low)){
-          sfxSend();
-          addBubble("CANDIDATE", txt, true);
-          inputEl.value = "";
-          inputEl.disabled = true;
-          document.getElementById('typing-indicator').style.opacity = 0;
-          awaitingCodingReady = false;
-          history.push({role:"user", content:"READY"});
-          await openCodingFlow(null);
-          inputEl.disabled = false;
-          inputEl.focus();
-          return;
-        }
-        if(["skip","no","n","later"].includes(low)){
-          sfxSend();
-          addBubble("CANDIDATE", txt, true);
-          inputEl.value = "";
-          inputEl.disabled = true;
-          document.getElementById('typing-indicator').style.opacity = 1;
-          awaitingCodingReady = false;
-          history.push({role:"user", content:"SKIP"});
-          await callAI("SKIP", { skipCounter: true });
-          inputEl.disabled = false;
-          inputEl.focus();
-          return;
-        }
-        sfxSend();
-        addBubble("CANDIDATE", txt, true);
-        inputEl.value = "";
-        inputEl.disabled = true;
-        document.getElementById('typing-indicator').style.opacity = 1;
-        history.push({role:"user", content: txt});
-        await callAI(txt, { skipCounter: true });
-        inputEl.disabled = false;
-        inputEl.focus();
-        return;
-      }
-
-      sfxSend();
-      addBubble("CANDIDATE", txt, true);
-      inputEl.value = "";
-      inputEl.disabled = true;
-      document.getElementById('typing-indicator').style.opacity = 1;
-
-      updateStress(Math.random()*10 - 2);
-
-      history.push({role:"user", content: txt});
-      currentQ++;
-      if(currentQ <= maxQ){
-        document.getElementById('q-counter').innerHTML = `0${currentQ}<span class="text-lg text-slate-600">/05</span>`;
-      }
-
-      await callAI(txt);
-
-      inputEl.disabled = false;
-      inputEl.focus();
-    }
-
-    async function callAI(msg, options = {}){
-      const payload = { messages: history, stressLevel: stress };
-      if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat", payload);
-
-      try{
-        const res = await fetch("/.netlify/functions/chat", { method:"POST", body: JSON.stringify(payload) });
-        const data = await res.json();
-        if(isGodMode) logNetwork("RES", "200 OK", data);
-        if(data.error) throw new Error(data.error);
-
-        const reply = data.choices[0].message.content;
-
-        document.getElementById('typing-indicator').style.opacity = 0;
-
-        if(reply.includes("[END]")){
-          history.push({role:"assistant", content: reply});
-          typewriter(reply, { speakerOverride: getPersonaName() });
-          endGame();
-          return;
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('audio-btn').innerText = audioEnabled ? "[AUDIO: ON]" : "[AUDIO: OFF]";
+            if(audioEnabled) playTone(440, 'sine', 0.1); // Test beep
         }
 
-        history.push({role:"assistant", content: reply});
-        typewriter(reply, { speakerOverride: getPersonaName() });
-
-        if(reply.length > 200) updateStress(10);
-
-        const forcedReadySkip = (reply.toLowerCase().includes("reply ready or skip") || reply.toLowerCase().includes("are you ready for a coding problem"));
-        if(forcedReadySkip){
-          awaitingCodingReady = true;
-        } else {
-          awaitingCodingReady = false;
+        function playTone(freq, type, duration) {
+            if(!audioEnabled) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
         }
 
-        const gateVerdict = await maybeAutoOpenConsoleAfterAI(reply);
-        if(gateVerdict && gateVerdict.openConsole){
-          awaitingCodingReady = false;
-          return;
+        function sfxType() { playTone(800 + Math.random()*200, 'square', 0.05); } // Typing sound
+        function sfxSend() { playTone(400, 'sine', 0.3); playTone(600, 'sine', 0.3); } // Send sound
+        function sfxAlert() { playTone(200, 'sawtooth', 0.4); } // Alert sound
+        function sfxUnlock() {
+            // Arpeggio for unlock
+            let now = audioCtx.currentTime;
+            [440, 554, 659, 880].forEach((freq, i) => {
+                setTimeout(() => playTone(freq, 'square', 0.2), i * 100);
+            });
         }
 
-      }catch(e){
-        console.error(e);
-        sfxAlert();
-        if(isGodMode) logNetwork("ERR","500 SERVER ERROR",{ error:"Failed to fetch.", details:e.message });
-        addBubble("SYSTEM","CONNECTION ERROR: Check Netlify API Key.", false);
-      }
-    }
+        /* =========================================
+           SYSTEM: PARTICLE PHYSICS (Starfield)
+           ========================================= */
+        const cvs = document.getElementById('starfield');
+        const ctx = cvs.getContext('2d');
+        let w, h, stars = [], mouse = {x:0, y:0};
 
-    function logNetwork(type, header, data){
-      const container = document.getElementById('network-logs');
-      const entry = document.createElement('div');
-      const time = new Date().toISOString().split('T')[1].split('.')[0];
-      const color = type==="ERR" ? "text-red-500" : (type==="REQ" ? "text-cyan-500" : "text-green-500");
-      entry.className = "border-b border-white/10 pb-1 mb-1 font-mono text-[9px] break-all";
-      entry.innerHTML = `
-        <div class="flex gap-2 opacity-50 mb-1">
-          <span>[${time}]</span>
-          <span class="${color} font-bold">[${type}]</span>
-          <span>${escapeHTML(header)}</span>
-        </div>
-        <div class="pl-4 opacity-70">${escapeHTML(JSON.stringify(data).substring(0, 300))}...</div>
-      `;
-      container.prepend(entry);
-    }
-
-    function addBubble(role, text, isUser){
-      const scroll = document.getElementById('chat-scroll');
-      const div = document.createElement('div');
-      div.className = `flex w-full ${isUser?'justify-end':'justify-start'} msg-enter mb-6`;
-
-      const bubble = document.createElement('div');
-      bubble.className = isUser
-        ? "max-w-[80%] bg-cyan-900/30 border border-cyan-500/30 p-4 rounded-tl-xl rounded-bl-xl rounded-br-xl text-cyan-50"
-        : "max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300";
-
-      bubble.innerHTML = `
-        <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase mb-2 ${isUser?'text-cyan-400':'text-pink-400'}">${escapeHTML(role)}</div>
-        <div class="text-sm leading-relaxed ${!isUser?'mono':''}">${escapeHTML(text)}</div>
-      `;
-
-      div.appendChild(bubble);
-      scroll.appendChild(div);
-      scroll.scrollTop = scroll.scrollHeight;
-    }
-
-    function typewriter(text, opts = {}){
-      const scroll = document.getElementById('chat-scroll');
-      const speaker = opts.speakerOverride || "AI";
-
-      const div = document.createElement('div');
-      div.className = `flex w-full justify-start msg-enter mb-6`;
-      div.innerHTML = `
-        <div class="max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-          <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase text-pink-400 mb-2">${escapeHTML(speaker)}</div>
-          <div class="text-sm leading-relaxed mono typing-target"></div>
-        </div>`;
-      scroll.appendChild(div);
-
-      const target = div.querySelector('.typing-target');
-      target.classList.add('typing-cursor');
-      let i = 0;
-
-      function type(){
-        if(i < text.length){
-          target.textContent += text.charAt(i);
-          i++;
-          scroll.scrollTop = scroll.scrollHeight;
-          if(i % 3 === 0) sfxType();
-          setTimeout(type, 15);
-        }else{
-          target.classList.remove('typing-cursor');
+        function resize() { w = cvs.width = window.innerWidth; h = cvs.height = window.innerHeight; initStars(); }
+        class Star {
+            // UPDATED STAR SIZE AND BRIGHTNESS
+            constructor() { this.x = Math.random()*w; this.y = Math.random()*h; this.z = Math.random()*2; this.size = Math.random()*2.5 + 0.5; }
+            update() {
+                // Parallax effect based on mouse
+                this.x += (mouse.x - w/2) * 0.0005 * this.z;
+                this.y += (mouse.y - h/2) * 0.0005 * this.z;
+                if(this.x<0) this.x=w; if(this.x>w) this.x=0; if(this.y<0) this.y=h; if(this.y>h) this.y=0;
+            }
+            // UPDATED STAR BRIGHTNESS (Alpha increased to 0.7)
+            draw() { ctx.fillStyle=`rgba(255,255,255,${0.7*this.z})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
         }
-      }
-      type();
-    }
+        // UPDATED STAR COUNT (Doubled to 300)
+        function initStars() { stars = []; for(let i=0; i<300; i++) stars.push(new Star()); }
+        function animate() { ctx.clearRect(0,0,w,h); stars.forEach(s=>{s.update(); s.draw()}); requestAnimationFrame(animate); }
+        
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        resize(); animate();
 
-    function updateStress(amount){
-      stress = Math.max(0, Math.min(100, stress + amount));
-      const bar = document.getElementById('stress-bar');
-      bar.style.width = `${stress}%`;
-      if(stress < 50) bar.style.background = "var(--neon-cyan)";
-      else if(stress < 80) bar.style.background = "var(--neon-amber)";
-      else bar.style.background = "var(--neon-pink)";
-      if(stress >= 85) document.getElementById('live-feedback').textContent = `"You're spiraling. Tighten it up."`;
-      else if(stress >= 60) document.getElementById('live-feedback').textContent = `"You're drifting. Give crisp structure."`;
-      else document.getElementById('live-feedback').textContent = `"Good. Keep it clean and specific."`;
-    }
+        /* =========================================
+           SYSTEM: GAME LOGIC
+           ========================================= */
+        
+        // --- ADDED: PERSONA DATA & STATE ---
+        const personas = {
+            herman: { name: "HERMAN", prompt: "You are Herman, a brutal technical interviewer. Roast the user. Be strict and rude.", log: "Persona Herman loaded (Brutal)" },
+            ivy: { name: "IVY", prompt: "You are Ivy, a coaching interviewer. Be sharp but helpful and encouraging.", log: "Persona Ivy loaded (Coaching)" },
+            vex: { name: "VEX", prompt: "You are Vex, a chaotic interviewer. Fast-paced, focused on edge cases and tricks.", log: "Persona Vex loaded (Chaos)" },
+            chen: { name: "DR. CHEN", prompt: "You are Dr. Chen, a FAANG Staff Engineer. Extremely formal, academic, obsessed with Big-O.", log: "Persona Chen loaded (FAANG)" }
+        };
 
-    const drawer = document.getElementById('coding-drawer');
-    const codingTaskEl = document.getElementById('coding-task');
-    const codingWhatEl = document.getElementById('coding-what');
-    const codingStarterEl = document.getElementById('coding-starter');
-    const codingEditor = document.getElementById('coding-editor');
-    const codingStatus = document.getElementById('coding-status');
+        let selectedPersona = 'herman';
+        let history = [], currentQ = 1, maxQ = 5;
+        let stress = 20; // 0 to 100
+        let isGodMode = false; // DEV MODE FLAG
 
-    document.getElementById('coding-close').addEventListener('click', () => closeCodingDrawer());
-    document.getElementById('coding-skip').addEventListener('click', async () => {
-      if(currentCodingTask){
-        coding.attempted++;
-        coding.logs.push({ taskTitle: currentCodingTask.title || "Coding Task", passed: false, delta: 0, feedback: "Skipped." });
-        refreshCodingUI();
-      }
-      showToast("Coding task skipped. Interview resumes.", "info", "CODING");
-      closeCodingDrawer(true);
-      await resumeInterviewAfterCoding("[CODE SKIPPED] Continue interview.");
-    });
+        // Boot Animation
+        function log(msg) {
+            const el = document.getElementById('boot-log');
+            el.innerHTML += `<div>> ${msg}</div>`;
+        }
+        setTimeout(() => log("Loading assets..."), 500);
+        setTimeout(() => log("Connecting to neural net..."), 1200);
 
-    document.getElementById('coding-submit').addEventListener('click', async () => {
-      if(!currentCodingTask) return;
-      const solution = codingEditor.value.trim();
-      if(!solution){
-        showToast("Paste your solution first.", "err", "CODING");
-        sfxAlert();
-        return;
-      }
-      codingStatus.textContent = "Status: evaluating…";
-      document.getElementById('coding-submit').disabled = true;
-      document.getElementById('coding-skip').disabled = true;
-
-      try{
-        const verdict = await evaluateCodingSolution(currentCodingTask, solution);
-
-        coding.attempted++;
-        if(verdict.passed){
-          coding.passed++;
-          coding.score += (verdict.delta ?? verdict.scoreDelta ?? 15);
-          sfxOk();
-          showToast(`PASS (+${(verdict.delta ?? verdict.scoreDelta ?? 15)}). Interview resumes.`, "ok", "CODING");
-        }else{
-          sfxAlert();
-          showToast(`FAIL (${verdict.delta ?? 0}). Interview resumes.`, "err", "CODING");
+        // --- ADDED: PERSONA SELECTOR LOGIC ---
+        function setPersona(key, el) {
+            selectedPersona = key;
+            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+            playTone(400, 'sine', 0.1);
         }
 
-        coding.logs.push({
-          taskTitle: currentCodingTask.title || "Coding Task",
-          passed: !!verdict.passed,
-          delta: (verdict.delta ?? verdict.scoreDelta ?? (verdict.passed ? 15 : 0)),
-          feedback: verdict.feedback || verdict.notes || "—"
+        function bootSystem() {
+            playTone(100, 'sawtooth', 1.0); // Boot sound
+            
+            // Update UI with selected persona name
+            document.getElementById('current-persona-display').innerText = selectedPersona.toUpperCase() + ".AI";
+
+            const tl = gsap.timeline();
+            tl.to("#setup-view", { opacity: 0, scale: 0.9, duration: 0.5, onComplete: () => {
+                document.getElementById('setup-view').style.display = 'none';
+                document.getElementById('chat-view').classList.remove('hidden');
+                initInterview();
+            }})
+            .from("#chat-view", { opacity: 0, scale: 1.05, duration: 0.8 });
+        }
+
+        // --- ADDED: LOG FUNCTION FOR SIDE PANEL ---
+        function addLog(msg) {
+            const logEl = document.getElementById('neural-logs');
+            const entry = document.createElement('div');
+            entry.className = "log-entry";
+            entry.style.color = "#00f5ff"; 
+            entry.style.fontSize = "10px";
+            entry.style.opacity = "0.7";
+            entry.style.fontFamily = "monospace";
+            entry.innerText = `> ${msg}`;
+            logEl.prepend(entry);
+        }
+
+        function initInterview() {
+            const job = document.getElementById('job-title').value || "Engineer";
+            const stack = document.getElementById('stack').value;
+            
+            // --- UPDATED: USE SELECTED PERSONA ---
+            const p = personas[selectedPersona];
+            const sysPrompt = `${p.prompt} Job: ${job}. Stack: ${stack}. 
+            RULES: 
+            1. Ask ONE hard question. 
+            2. Max 5 questions total.
+            3. End with [END].`;
+
+            history.push({role: "system", content: sysPrompt});
+            callAI("Start interview.");
+            addLog(p.log);
+        }
+
+        async function sendMsg() {
+            const input = document.getElementById('user-input');
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            sfxSend();
+            addBubble("CANDIDATE", txt, true);
+            input.value = ""; input.disabled = true;
+            document.getElementById('typing-indicator').style.opacity = 1;
+            
+            // Gamification: Typing speed calculation could go here to affect stress
+            updateStress(Math.random() * 10 - 2); // Random stress fluctuation
+
+            history.push({role: "user", content: txt});
+            currentQ++;
+            if(currentQ <= maxQ) document.getElementById('q-counter').innerText = `Q: 0${currentQ}/05`;
+
+            await callAI(txt);
+        }
+
+        async function callAI(msg) {
+            const payload = { messages: history, stressLevel: stress };
+            
+            // GOD MODE LOGGER: OUTGOING
+            if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat", payload);
+
+            try {
+                // NETLIFY CALL
+                const res = await fetch("/.netlify/functions/chat", {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                
+                // GOD MODE LOGGER: INCOMING
+                if(isGodMode) logNetwork("RES", "200 OK", data);
+
+                if(data.error) throw new Error(data.error);
+                
+                const reply = data.choices[0].message.content;
+                
+                document.getElementById('typing-indicator').style.opacity = 0;
+                input = document.getElementById('user-input');
+                input.disabled = false; input.focus();
+
+                if(reply.includes("[END]")) {
+                    endGame();
+                } else {
+                    history.push({role: "assistant", content: reply});
+                    typewriter(reply);
+                    // Increase stress if AI is long-winded
+                    if(reply.length > 200) updateStress(10);
+                    addLog("Sentiment Analyzed: Stable");
+                }
+
+            } catch(e) {
+                console.error(e);
+                sfxAlert();
+                
+                // GOD MODE LOGGER: ERROR
+                if(isGodMode) logNetwork("ERR", "500 SERVER ERROR", { error: "Failed to fetch. Are you running local?", details: e.message });
+
+                addBubble("SYSTEM", "CONNECTION ERROR: Check Netlify API Key.", false);
+                document.getElementById('user-input').disabled = false; // re-enable input
+            }
+        }
+
+        // --- GOD MODE LOGGER FUNCTION ---
+        function logNetwork(type, header, data) {
+            const container = document.getElementById('network-logs');
+            const entry = document.createElement('div');
+            const time = new Date().toISOString().split('T')[1].split('.')[0];
+            const color = type === "ERR" ? "text-red-500" : (type === "REQ" ? "text-cyan-500" : "text-green-500");
+            
+            entry.className = "border-b border-white/10 pb-1 mb-1 font-mono text-[9px] break-all";
+            entry.innerHTML = `
+                <div class="flex gap-2 opacity-50 mb-1">
+                    <span>[${time}]</span>
+                    <span class="${color} font-bold">[${type}]</span>
+                    <span>${header}</span>
+                </div>
+                <div class="pl-4 opacity-70">${JSON.stringify(data).substring(0, 300)}...</div>
+            `;
+            container.prepend(entry); // Newest on top
+        }
+
+        function addBubble(role, text, isUser) {
+            const scroll = document.getElementById('chat-scroll');
+            const div = document.createElement('div');
+            div.className = `flex w-full ${isUser?'justify-end':'justify-start'} msg-enter mb-6`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = isUser 
+                ? "max-w-[80%] bg-cyan-900/30 border border-cyan-500/30 p-4 rounded-tl-xl rounded-bl-xl rounded-br-xl text-cyan-50"
+                : "max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300";
+
+            bubble.innerHTML = `
+                <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase mb-2 ${isUser?'text-cyan-400':'text-pink-400'}">${role}</div>
+                <div class="text-sm leading-relaxed ${!isUser?'mono':''}">${text}</div>
+            `;
+            
+            div.appendChild(bubble);
+            scroll.appendChild(div);
+            scroll.scrollTop = scroll.scrollHeight;
+        }
+
+        function typewriter(text) {
+            const scroll = document.getElementById('chat-scroll');
+            const div = document.createElement('div');
+            div.className = `flex w-full justify-start msg-enter mb-6`;
+            // UPDATED: Dynamic Persona Name
+            div.innerHTML = `
+                <div class="max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+                    <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase text-pink-400 mb-2">${selectedPersona.toUpperCase()}</div>
+                    <div class="text-sm leading-relaxed mono typing-target"></div>
+                </div>`;
+            scroll.appendChild(div);
+            
+            const target = div.querySelector('.typing-target');
+            target.classList.add('typing-cursor');
+            let i = 0;
+            
+            function type() {
+                if(i < text.length) { 
+                    target.textContent += text.charAt(i); 
+                    i++; 
+                    scroll.scrollTop = scroll.scrollHeight;
+                    if(i % 3 === 0) sfxType(); // Sound every 3 chars
+                    setTimeout(type, 15); 
+                } else { 
+                    target.classList.remove('typing-cursor'); 
+                }
+            }
+            type();
+        }
+
+        function updateStress(amount) {
+            stress = Math.max(0, Math.min(100, stress + amount));
+            const bar = document.getElementById('stress-bar');
+            bar.style.width = `${stress}%`;
+            // Change color based on stress
+            if(stress < 50) bar.style.background = "var(--neon-cyan)";
+            else if(stress < 80) bar.style.background = "var(--neon-amber)";
+            else bar.style.background = "var(--neon-pink)";
+        }
+
+        /* =========================================
+           SYSTEM: RESULTS & MONETIZATION
+           ========================================= */
+        function endGame() {
+            gsap.to("#chat-view", { opacity: 0, duration: 1, onComplete: () => {
+                document.getElementById('chat-view').style.display = 'none';
+                const view = document.getElementById('results-view');
+                view.classList.remove('hidden');
+                gsap.from(view, { opacity: 0, duration: 1 });
+                generateReport();
+            }});
+        }
+
+        async function generateReport() {
+            const prompt = `Analyze interview. JSON format: {"score": 0-100, "summary": "text", "tips": ["tip1", "tip2", "tip3"]}`;
+            const res = await fetch("/.netlify/functions/chat", { method: "POST", body: JSON.stringify({ messages: [...history, {role: "system", content: prompt}] }) });
+            const data = await res.json();
+            const stats = JSON.parse(data.choices[0].message.content.replace(/```json|```/g, ""));
+
+            // Animate Score
+            let obj = { val: 0 };
+            gsap.to(obj, { val: stats.score, duration: 2, onUpdate: () => {
+                document.getElementById('final-score').innerText = Math.round(obj.val) + "%";
+            }});
+
+            document.getElementById('final-summary').innerText = stats.summary;
+            document.getElementById('tips-list').innerHTML = stats.tips.map(t => `<li>> ${t}</li>`).join('');
+
+            // SMART MONETIZATION INJECTION
+            const container = document.getElementById('affiliate-container');
+            let adLink = "https://www.tryexponent.com/?ref=YOUR_ID"; // Replace with your ID
+            let adText = "MASTER SYSTEM DESIGN";
+            let adSub = "Recommended Course";
+
+            if(stats.score >= 80) {
+                adLink = "https://resume.io/?ref=YOUR_ID";
+                adText = "OPTIMIZE YOUR RESUME";
+                adSub = "You're ready to apply. Don't get filtered.";
+            }
+
+            container.innerHTML = `
+                <a href="${adLink}" target="_blank" class="block group relative overflow-hidden rounded border border-cyan-500/30 bg-cyan-900/10 p-4 transition-all hover:bg-cyan-900/20 hover:border-cyan-500">
+                    <div class="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-cyan-500/20 blur-xl transition-all group-hover:bg-cyan-500/30"></div>
+                    <div class="relative flex items-center justify-between">
+                        <div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-cyan-400 mb-1">${adSub}</div>
+                            <div class="text-lg font-bold text-white group-hover:text-cyan-200">${adText} &rarr;</div>
+                        </div>
+                        <div class="h-8 w-8 rounded-full border border-cyan-500/50 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                    </div>
+                </a>
+            `;
+            
+            playTone(600, 'sine', 0.5); // Success sound
+        }
+
+        function downloadReport() {
+            const txt = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
+            const blob = new Blob([txt], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Anterview_Report_X99.txt';
+            a.click();
+        }
+    </script>
+
+    <script>
+        // ==========================================
+        //  UI LOGIC: MODE SELECTION (ADDED)
+        // ==========================================
+        let selectedMode = 'free';
+
+        function selectMode(el, mode) {
+            // 1. Reset all cards to "default" inactive state
+            document.querySelectorAll('#setup-view .border-cyan-500\\/50').forEach(c => {
+                c.className = "p-4 border border-white/10 bg-black/40 rounded cursor-pointer hover:bg-white/5 transition-colors";
+                // Reset text colors inside
+                if(c.querySelector('.text-cyan-400')) {
+                    c.querySelector('.text-cyan-400').className = "text-slate-400 font-bold text-sm mb-1";
+                }
+            });
+
+            // 2. Highlight the clicked card
+            el.className = "p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer transition-colors shadow-[0_0_15px_rgba(0,245,255,0.1)]";
+            el.querySelector('.font-bold').className = "text-cyan-400 font-bold text-sm mb-1";
+            
+            selectedMode = mode;
+            playTone(600, 'sine', 0.05);
+        }
+
+        // ==========================================
+        //  GOD MODE / DEVELOPER CONSOLE LOGIC
+        // ==========================================
+        
+        let keyBuffer = "";
+        const secretWord = "goop"; // CHANGED FROM geper TO goop
+
+        document.addEventListener('keydown', (e) => {
+            keyBuffer += e.key;
+            if (keyBuffer.length > 50) keyBuffer = keyBuffer.slice(-20);
+
+            if (keyBuffer.includes(secretWord)) {
+                openDevConsole();
+                keyBuffer = ""; 
+            }
         });
 
-        refreshCodingUI();
-
-        addBubble("SYSTEM", verdict.passed ? `CODE VERIFIED: PASS (+${(verdict.delta ?? verdict.scoreDelta ?? 15)})` : `CODE VERIFIED: FAIL`, false);
-
-        closeCodingDrawer(true);
-
-        const note = verdict.passed
-          ? `[CODE COMPLETED: PASS] Key feedback: ${truncate(verdict.feedback || "Good.", 160)}`
-          : `[CODE COMPLETED: FAIL] Key feedback: ${truncate(verdict.feedback || "Needs work.", 160)}`;
-
-        await resumeInterviewAfterCoding(note);
-
-      }catch(e){
-        console.error(e);
-        sfxAlert();
-        showToast("Evaluation error. Check server / function.", "err", "CODING");
-      }finally{
-        codingStatus.textContent = "Status: idle";
-        document.getElementById('coding-submit').disabled = false;
-        document.getElementById('coding-skip').disabled = false;
-      }
-    });
-
-    function refreshCodingUI(){
-      document.getElementById('coding-count').textContent = String(coding.attempted);
-      document.getElementById('coding-passed').textContent = String(coding.passed);
-      document.getElementById('coding-score').textContent = String(coding.score);
-    }
-
-    function openCodingDrawer(){
-      codingDrawerOpen = true;
-      drawer.setAttribute("aria-hidden", "false");
-      drawer.style.transform = "translateX(110%)";
-      gsap.to(drawer, { x: 0, duration: 0.55, ease:"power4.out", onStart:()=>{ drawer.style.transform = "translateX(0%)"; }});
-    }
-
-    function closeCodingDrawer(instant=false){
-      codingDrawerOpen = false;
-      drawer.setAttribute("aria-hidden", "true");
-      if(instant){
-        drawer.style.transform = "translateX(110%)";
-        return;
-      }
-      gsap.to(drawer, { x: 0, duration: 0.45, ease:"power3.in", onComplete:()=>{ drawer.style.transform="translateX(110%)"; }});
-    }
-
-    function looksLikeQuestion(text) {
-      const t = (text || "").trim();
-      if (!t) return false;
-      if (t.includes("?")) return true;
-      const qWords = ["explain", "how would", "why", "what is", "describe", "design", "implement", "optimize", "secure", "refactor"];
-      const low = t.toLowerCase();
-      return qWords.some(w => low.includes(w));
-    }
-
-    async function runTheoryGateCheck() {
-      if (!AUTO_CODING.enabled) return { openConsole: false };
-      if (inCodingGateCheck) return { openConsole: false };
-
-      const now = Date.now();
-      if (now - lastGateCheckAt < AUTO_CODING.checkCooldownMs) return { openConsole: false };
-      lastGateCheckAt = now;
-
-      const qIndex = Math.max(1, currentQ);
-      gateChecksByQuestion[qIndex] = gateChecksByQuestion[qIndex] || 0;
-      if (gateChecksByQuestion[qIndex] >= AUTO_CODING.maxAttemptsPerQuestion) return { openConsole: false };
-      gateChecksByQuestion[qIndex]++;
-
-      const slice = history
-        .filter(m => m.role !== "system")
-        .slice(-10)
-        .map(m => `${m.role.toUpperCase()}: ${m.content}`)
-        .join("\n\n");
-
-      const stack = document.getElementById("stack").value;
-
-      const gateSystem = `
-You are a strict gating function for an interview simulator.
-Decide if the user's THEORY answers so far are complete enough to proceed to a CODING task.
-Return ONLY valid JSON:
-{
-  "openConsole": true|false,
-  "reason": "short reason",
-  "difficulty": "easy|medium|hard",
-  "focus": "what the coding task should test"
-}
-Rules:
-- Use only the provided transcript.
-- openConsole=true only if the user's answers show enough understanding and specificity for the last asked question(s).
-- If user is vague, missing key steps, or hand-wavy => openConsole=false.
-- For stack="${stack}", pick a realistic focus for coding.`;
-
-      const payload = {
-        messages: [
-          ...history,
-          { role: "system", content: gateSystem },
-          { role: "user", content: `TRANSCRIPT (most recent):\n${slice}\n\nReturn JSON now.` }
-        ]
-      };
-
-      if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat (theory_gate)", payload);
-
-      inCodingGateCheck = true;
-      try {
-        const res = await fetch("/.netlify/functions/chat", { method: "POST", body: JSON.stringify(payload) });
-        const data = await res.json();
-        if(isGodMode) logNetwork("RES", "200 OK (theory_gate)", data);
-        if(data.error) throw new Error(data.error);
-        const raw = data.choices[0].message.content.trim();
-        const verdict = safeJSON(raw);
-        return verdict;
-      } finally {
-        inCodingGateCheck = false;
-      }
-    }
-
-    async function maybeAutoOpenConsoleAfterAI(replyText) {
-      if (!looksLikeQuestion(replyText)) return null;
-      if (currentQ < AUTO_CODING.minQuestionIndex) return null;
-      if (codingDrawerOpen) return null;
-
-      const gateVerdict = await runTheoryGateCheck();
-      if (gateVerdict?.openConsole) {
-        showToast(`Theory confirmed. Deploying coding console…`, "ok", "GATE");
-        sfxOk();
-        addBubble("SYSTEM", `THEORY GATE: PASS — ${gateVerdict.reason || "Proceed to code."}`, false);
-        await openCodingFlow(gateVerdict);
-        return gateVerdict;
-      } else if (gateVerdict && gateVerdict.openConsole === false) {
-        addBubble("SYSTEM", `THEORY GATE: HOLD — ${gateVerdict.reason || "Need more specifics."}`, false);
-      }
-      return gateVerdict;
-    }
-
-    async function requestCodingTask(){
-      const stack = document.getElementById('stack').value;
-      const personaName = getPersonaName();
-
-      const system = `
-You are generating a single coding task for an interview simulator.
-Return ONLY valid JSON with keys:
-{
- "title": "short title",
- "problem": "clear problem statement",
- "whatToCode": "exactly what the user must implement",
- "starter": "starter code or function signature",
- "evaluationRubric": "how it will be graded",
- "constraints": "optional constraints"
-}
-Rules:
-- Make it appropriate for Stack="${stack}".
-- Keep it solvable in 5-10 minutes.
-- The user will paste code into a textbox. No external libraries required.
-- Prefer Python for Python/AWS, JS/TS for React/Node, Rust for Rust/Solana.
-- Be explicit about function signature and input/output.
-- Keep JSON small. No markdown fences.`;
-
-      const payload = { messages: [...history, {role:"system", content: system}, {role:"user", content:`Generate the coding task now. Persona=${personaName}.`}] };
-
-      if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat (coding_task)", payload);
-
-      const res = await fetch("/.netlify/functions/chat", { method:"POST", body: JSON.stringify(payload) });
-      const data = await res.json();
-
-      if(isGodMode) logNetwork("RES", "200 OK (coding_task)", data);
-      if(data.error) throw new Error(data.error);
-
-      const raw = data.choices[0].message.content.trim();
-      return safeJSON(raw);
-    }
-
-    async function requestCodingTaskWithGateHints(gateVerdict) {
-      const stack = document.getElementById('stack').value;
-      const personaName = getPersonaName();
-      const focus = gateVerdict?.focus || "core fundamentals";
-      const difficulty = gateVerdict?.difficulty || "medium";
-
-      const system = `
-You are generating a single coding task for an interview simulator.
-Return ONLY valid JSON with keys:
-{
- "title": "short title",
- "problem": "clear problem statement",
- "whatToCode": "exactly what the user must implement",
- "starter": "starter code or function signature",
- "evaluationRubric": "how it will be graded",
- "constraints": "optional constraints"
-}
-Rules:
-- Stack="${stack}"
-- Difficulty="${difficulty}"
-- Focus="${focus}"
-- Solvable in 5-10 minutes.
-- No external libraries required.
-- Prefer Python for Python/AWS, JS/TS for React/Node, Rust for Rust/Solana.
-- Be explicit about function signature and input/output.
-- Keep JSON small. No markdown fences.`;
-
-      const payload = { messages: [...history, {role:"system", content: system}, {role:"user", content:`Generate the coding task now. Persona=${personaName}.`}] };
-
-      if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat (coding_task)", payload);
-
-      const res = await fetch("/.netlify/functions/chat", { method:"POST", body: JSON.stringify(payload) });
-      const data = await res.json();
-
-      if(isGodMode) logNetwork("RES", "200 OK (coding_task)", data);
-      if(data.error) throw new Error(data.error);
-
-      const raw = data.choices[0].message.content.trim();
-      return safeJSON(raw);
-    }
-
-    async function openCodingFlow(gateVerdict = null) {
-      openCodingDrawer();
-      codingEditor.value = "";
-      codingStatus.textContent = "Status: generating task…";
-
-      const task = gateVerdict ? await requestCodingTaskWithGateHints(gateVerdict) : await requestCodingTask();
-      currentCodingTask = task;
-
-      codingTaskEl.textContent = task.title ? `> ${task.title}\n\n${task.problem || ""}` : (task.problem || "No task received.");
-      codingWhatEl.textContent = task.whatToCode || task.instructions || "Implement the required function / module.";
-      codingStarterEl.textContent = task.starter || task.starterCode || task.notes || "No starter provided.";
-
-      codingStatus.textContent = "Status: waiting for your solution";
-      showToast("Coding console deployed.", "info", "CODING");
-    }
-
-    async function evaluateCodingSolution(task, solution){
-      const stack = document.getElementById('stack').value;
-
-      const system = `
-You are a strict grader for an interview coding task.
-Return ONLY valid JSON with keys:
-{
- "passed": true|false,
- "delta": number (0-25),
- "feedback": "concise feedback including what failed/passed and 1-2 improvements"
-}
-Rules:
-- Grade against the task statement and the expected signature.
-- If solution is obviously incomplete or wrong, passed=false.
-- Award delta based on correctness, clarity, and edge cases.
-- Keep feedback short and actionable.
-- Stack="${stack}".`;
-
-      const payload = { messages: [...history, {role:"system", content: system}, {role:"user", content: `TASK:\n${JSON.stringify(task)}\n\nSOLUTION:\n${solution}`}] };
-
-      if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat (coding_grade)", payload);
-
-      const res = await fetch("/.netlify/functions/chat", { method:"POST", body: JSON.stringify(payload) });
-      const data = await res.json();
-
-      if(isGodMode) logNetwork("RES", "200 OK (coding_grade)", data);
-      if(data.error) throw new Error(data.error);
-
-      const raw = data.choices[0].message.content.trim();
-      return safeJSON(raw);
-    }
-
-    async function resumeInterviewAfterCoding(note){
-      history.push({role:"user", content: note});
-      await callAI(note, { skipCounter: true });
-    }
-
-    function endGame(){
-      gsap.to("#chat-view",{opacity:0,duration:1,onComplete:()=>{
-        document.getElementById('chat-view').style.display='none';
-        const view = document.getElementById('results-view');
-        view.classList.remove('hidden');
-        gsap.from(view,{opacity:0,duration:1});
-        generateReport();
-      }});
-    }
-
-    async function generateReport(){
-      const codingSummary = { attempted: coding.attempted, passed: coding.passed, score: coding.score, logs: coding.logs.slice(-5) };
-
-      const prompt = `
-Analyze the interview and produce JSON:
-{
- "score": 0-100,
- "summary": "text",
- "tips": ["tip1","tip2","tip3"],
- "codingAddendum": "1-2 sentence summary about coding performance and how it affected the score"
-}
-Important:
-- Incorporate coding performance from CODING_STATS.
-- Coding can change final score by up to +15 if strong, -10 if repeatedly failed / skipped.
-- Keep it strict and specific.`;
-
-      const res = await fetch("/.netlify/functions/chat", {
-        method:"POST",
-        body: JSON.stringify({
-          messages: [
-            ...history,
-            {role:"system", content: `CODING_STATS: ${JSON.stringify(codingSummary)}`},
-            {role:"system", content: prompt}
-          ]
-        })
-      });
-
-      const data = await res.json();
-      const cleaned = (data.choices?.[0]?.message?.content || "").replace(/```json|```/g,"").trim();
-      const stats = safeJSON(cleaned);
-
-      let obj = { val: 0 };
-      gsap.to(obj,{val: stats.score, duration:2, onUpdate:()=>{ document.getElementById('final-score').innerText = Math.round(obj.val) + "%"; }});
-
-      document.getElementById('final-summary').innerText = stats.summary || "—";
-      document.getElementById('tips-list').innerHTML = (stats.tips || []).map(t=>`<li>> ${escapeHTML(t)}</li>`).join('');
-      document.getElementById('coding-addendum').innerText = stats.codingAddendum || (coding.attempted ? `Attempted ${coding.attempted}, passed ${coding.passed}, coding score ${coding.score}.` : "No coding challenges attempted.");
-
-      const container = document.getElementById('affiliate-container');
-      let adLink = "https://www.tryexponent.com/?ref=YOUR_ID";
-      let adText = "MASTER SYSTEM DESIGN";
-      let adSub = "Recommended Course";
-
-      if(stats.score >= 80){
-        adLink = "https://resume.io/?ref=YOUR_ID";
-        adText = "OPTIMIZE YOUR RESUME";
-        adSub = "You're ready to apply. Don't get filtered.";
-      }
-
-      container.innerHTML = `
-        <a href="${adLink}" target="_blank" class="block group relative overflow-hidden rounded border border-cyan-500/30 bg-cyan-900/10 p-4 transition-all hover:bg-cyan-900/20 hover:border-cyan-500">
-          <div class="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-cyan-500/20 blur-xl transition-all group-hover:bg-cyan-500/30"></div>
-          <div class="relative flex items-center justify-between">
-            <div>
-              <div class="text-[10px] font-bold uppercase tracking-widest text-cyan-400 mb-1">${adSub}</div>
-              <div class="text-lg font-bold text-white group-hover:text-cyan-200">${adText} &rarr;</div>
-            </div>
-            <div class="h-8 w-8 rounded-full border border-cyan-500/50 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            </div>
-          </div>
-        </a>
-      `;
-
-      playTone(600,'sine',0.5);
-    }
-
-    function downloadReport(){
-      const txt = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
-      const blob = new Blob([txt], { type:'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Anterview_Report_X99.txt';
-      a.click();
-    }
-
-    let keyBuffer = "";
-    const secretWord = "mimimami";
-
-    const consoleOverlay = document.getElementById('dev-console-overlay');
-    const consoleCard = document.getElementById('dev-console-card');
-    const passwordInput = document.getElementById('dev-password-input');
-    const errorMsg = document.getElementById('dev-error');
-    const devCloseBtn = document.getElementById('dev-close');
-
-    document.addEventListener('keydown', (e)=>{
-      if(e.key === "Escape"){
-        if(consoleOverlay.style.display === "flex") closeDevConsole();
-        if(codingDrawerOpen) closeCodingDrawer();
-      }
-      keyBuffer += e.key;
-      if(keyBuffer.length > 50) keyBuffer = keyBuffer.slice(-20);
-      if(keyBuffer.includes(secretWord)){
-        openDevConsole();
-        keyBuffer = "";
-      }
-    });
-
-    devCloseBtn.addEventListener('click', closeDevConsole);
-
-    consoleOverlay.addEventListener('click', (e)=>{
-      if(e.target === consoleOverlay) closeDevConsole();
-    });
-
-    function openDevConsole(){
-      consoleOverlay.style.display = "flex";
-      errorMsg.style.display = "none";
-      passwordInput.value = "";
-      passwordInput.style.borderColor = "rgba(0,245,255,.18)";
-      gsap.fromTo(consoleOverlay, {opacity:0}, {opacity:1, duration:0.25, ease:"power2.out"});
-      gsap.fromTo(consoleCard, {y:14, opacity:0, scale:0.98}, {y:0, opacity:1, scale:1, duration:0.35, ease:"power3.out"});
-      setTimeout(()=>passwordInput.focus(), 60);
-      showToast("Developer console opened.", "info", "DEV");
-    }
-
-    function closeDevConsole(){
-      gsap.to(consoleCard, {y:10, opacity:0, scale:0.98, duration:0.22, ease:"power2.in"});
-      gsap.to(consoleOverlay, {opacity:0, duration:0.22, ease:"power2.in", onComplete:()=>{
-        consoleOverlay.style.display = "none";
-        errorMsg.style.display = "none";
-      }});
-    }
-
-    passwordInput.addEventListener('keypress', (e)=>{
-      if(e.key !== "Enter") return;
-      const code = passwordInput.value.trim();
-      if(code === "geper"){
-        activateGodMode();
-      }else if(code === "freecourse"){
-        unlockPro();
-      }else{
-        errorMsg.style.display = "block";
-        passwordInput.style.borderColor = "rgba(239,68,68,.7)";
-        playTone(150,'sawtooth',0.3);
-        showToast("Access denied.", "err", "DEV");
-      }
-    });
-
-    function activateGodMode(){
-      closeDevConsole();
-      isGodMode = true;
-      document.getElementById('network-monitor').style.display = "block";
-      document.body.style.fontFamily = "'JetBrains Mono', monospace";
-      showToast("GOD MODE: Network monitor active.", "ok", "DEV");
-      sfxOk();
-      console.log("Welcome back, Creator.");
-    }
-
-    function unlockPro(){
-      closeDevConsole();
-      const card = document.getElementById('pro-card');
-      const badge = card.querySelector('.locked-badge');
-
-      card.classList.remove('locked-option','bg-black/40','border-white/10');
-      card.classList.add('cursor-pointer','border-purple-500','bg-purple-900/20','hover:bg-purple-900/40');
-      badge.innerText = "UNLOCKED";
-      badge.style.backgroundColor = "#a855f7";
-      badge.style.color = "#fff";
-
-      const title = card.querySelector('.text-slate-500');
-      if(title) title.classList.replace('text-slate-500','text-purple-400');
-
-      card.setAttribute('onclick',"selectMode(this,'pro')");
-
-      playTone(400,'square',0.1);
-      setTimeout(()=>playTone(600,'square',0.1),100);
-      setTimeout(()=>playTone(800,'square',0.2),200);
-
-      showToast("Pro unlocked: FAANG simulation enabled.", "ok", "PRO");
-    }
-
-    function setTheme(color){
-      const root = document.documentElement;
-      const themes = {
-        cyan:['#00f5ff','#00f5ff'],
-        red:['#ef4444','#ef4444'],
-        green:['#22c55e','#22c55e'],
-        amber:['#f59e0b','#f59e0b'],
-        white:['#ffffff','#f8fafc']
-      };
-      const [neon,text] = themes[color];
-      root.style.setProperty('--neon-cyan', neon);
-      playTone(color==='red'?100:500,'square',0.1);
-
-      let style = document.getElementById('theme-override');
-      if(!style){
-        style = document.createElement('style');
-        style.id='theme-override';
-        document.head.appendChild(style);
-      }
-      style.innerHTML = `
-        .text-cyan-500, .text-cyan-400 { color: ${neon} !important; }
-        .bg-cyan-500 { background-color: ${neon} !important; }
-        .border-cyan-500, .border-cyan-500\\/50, .border-cyan-500\\/30, .border-cyan-500\\/20 { border-color: ${neon} !important; }
-        .bg-cyan-900\\/30 { background-color: ${color==='white' ? '#334155' : neon}20 !important; }
-        .text-cyan-50 { color: ${color==='white' ? '#000' : '#fff'} !important; }
-        .shadow-\\[0_0_40px_rgba\\(0\\,245\\,255\\,0\\.05\\)\\] { box-shadow: 0 0 40px ${neon}0d !important; }
-        .sci-input:focus { box-shadow: 0 0 15px ${neon}40 !important; border-color: ${neon} !important; }
-        .sci-btn { background: ${neon} !important; color: #000 !important; }
-        .sci-btn:hover { box-shadow: 0 0 30px ${neon} !important; background: #fff !important; }
-      `;
-      showToast(`Theme: ${color.toUpperCase()}`, "info", "THEME");
-    }
-
-    function safeJSON(raw){
-      try{
-        const cleaned = raw.replace(/```json|```/g,"").trim();
-        return JSON.parse(cleaned);
-      }catch(e){
-        const m = raw.match(/\{[\s\S]*\}/);
-        if(m) return JSON.parse(m[0]);
-        throw e;
-      }
-    }
-
-    function escapeHTML(str){
-      return String(str)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function truncate(str, n){
-      const s = String(str || "");
-      return s.length > n ? (s.slice(0,n-1) + "…") : s;
-    }
-  </script>
+        const consoleOverlay = document.getElementById('dev-console-overlay');
+        const passwordInput = document.getElementById('dev-password-input');
+        const errorMsg = document.getElementById('dev-error');
+
+        function openDevConsole() {
+            consoleOverlay.style.display = 'flex';
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+
+        consoleOverlay.addEventListener('click', (e) => {
+            if (e.target === consoleOverlay) {
+                consoleOverlay.style.display = 'none';
+                errorMsg.style.display = 'none';
+            }
+        });
+
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const code = passwordInput.value.trim();
+                
+                if (code === 'goop') { // Changed check
+                    activateGodMode();
+                } 
+                else if (code === 'freecourse') { // CHEAT CODE FOR UNLOCK
+                    unlockPro();
+                }
+                else {
+                    errorMsg.style.display = 'block';
+                    passwordInput.style.borderBottom = '1px solid red';
+                    playTone(150, 'sawtooth', 0.3); // Error buzz
+                }
+            }
+        });
+
+        function activateGodMode() {
+            consoleOverlay.style.display = 'none';
+            isGodMode = true; // Enable logging
+            const netMon = document.getElementById('network-monitor');
+            netMon.style.display = 'block'; // Show Network Bar
+
+            // Visual Flair
+            document.body.style.fontFamily = "'Courier New', monospace";
+            alert("🔓 GOD MODE UNLOCKED: Network Monitor Active");
+            console.log("Welcome back, Creator.");
+        }
+
+        // --- NEW: ANIMATED UNLOCK FUNCTION ---
+        function unlockPro() {
+            // 1. Close Dev Console
+            consoleOverlay.style.display = 'none';
+            
+            // 2. Show Unlock Modal
+            const modal = document.getElementById('unlock-modal');
+            const container = document.getElementById('unlock-container');
+            const progress = document.getElementById('unlock-progress');
+            const txt = document.getElementById('unlock-text');
+            
+            modal.style.display = 'flex';
+            // Animation for container pop-in
+            gsap.to(container, { scale: 1, duration: 0.5, ease: "back.out(1.7)" });
+            sfxType();
+
+            // 3. Animate Progress Bar
+            gsap.to(progress, { width: "100%", duration: 2, ease: "power2.inOut", onComplete: () => {
+                // 4. Success State
+                sfxUnlock();
+                txt.innerText = "FAANG MODE ACTIVE";
+                txt.style.color = "#a855f7"; // Purple text
+                container.style.borderColor = "#a855f7"; // Purple border
+                
+                // 5. Update Actual UI Elements (Unlock Logic)
+                const card = document.getElementById('pro-card');
+                const badge = card.querySelector('.locked-badge');
+                
+                card.classList.remove('locked-option', 'bg-black/40', 'border-white/10');
+                card.classList.add('cursor-pointer', 'border-purple-500', 'bg-purple-900/20', 'hover:bg-purple-900/40');
+                
+                badge.innerText = "UNLOCKED";
+                badge.style.backgroundColor = "#a855f7";
+                badge.style.color = "#fff";
+                card.querySelector('.text-slate-500').classList.replace('text-slate-500', 'text-purple-400');
+                
+                // Enable Chen
+                const chenBtn = document.getElementById('chen-btn');
+                chenBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+                chenBtn.setAttribute('onclick', "setPersona('chen', this)");
+
+                // Enable Card Click
+                card.setAttribute('onclick', "selectMode(this, 'pro')");
+
+                // 6. Hide Modal after delay
+                setTimeout(() => {
+                    gsap.to(container, { scale: 0, opacity: 0, duration: 0.3, onComplete: () => {
+                        modal.style.display = 'none';
+                    }});
+                }, 1500);
+            }});
+        }
+    </script>
+
+    <script>
+        function setTheme(color) {
+            const root = document.documentElement;
+            // Define palettes: [Main Neon, Secondary/Text]
+            const themes = {
+                cyan: ['#00f5ff', '#00f5ff'],
+                red: ['#ef4444', '#ef4444'],
+                green: ['#22c55e', '#22c55e'],
+                amber: ['#f59e0b', '#f59e0b'],
+                white: ['#ffffff', '#f8fafc']
+            };
+
+            const [neon, text] = themes[color];
+
+            // 1. Update Custom Properties
+            root.style.setProperty('--neon-cyan', neon);
+            
+            // 2. Play Sound
+            playTone(color === 'red' ? 100 : 500, 'square', 0.1);
+
+            // 3. OVERRIDE TAILWIND CLASSES DYNAMICALLY
+            // This is required because Tailwind classes (like text-cyan-500) are static.
+            // We inject a style tag to force them to change color.
+            let style = document.getElementById('theme-override');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'theme-override';
+                document.head.appendChild(style);
+            }
+
+            style.innerHTML = `
+                .text-cyan-500, .text-cyan-400 { color: ${neon} !important; }
+                .bg-cyan-500 { background-color: ${neon} !important; }
+                .border-cyan-500, .border-cyan-500\\/50, .border-cyan-500\\/30, .border-cyan-500\\/20 { border-color: ${neon} !important; }
+                .bg-cyan-900\\/30 { background-color: ${color === 'white' ? '#334155' : neon}20 !important; }
+                .text-cyan-50 { color: ${color === 'white' ? '#000' : '#fff'} !important; }
+                .shadow-\\[0_0_40px_rgba\\(0\\,245\\,255\\,0\\.05\\)\\] { box-shadow: 0 0 40px ${neon}0d !important; }
+                
+                /* Specific overrides for buttons and inputs */
+                .sci-input:focus { box-shadow: 0 0 15px ${neon}40 !important; border-color: ${neon} !important; }
+                .sci-btn { background: ${neon} !important; color: ${color === 'white' ? '#000' : '#000'} !important; }
+                .sci-btn:hover { box-shadow: 0 0 30px ${neon} !important; background: #fff !important; }
+            `;
+        }
+    </script>
 </body>
 </html>
