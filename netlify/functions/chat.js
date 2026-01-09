@@ -1,79 +1,70 @@
-// ELITE BACKEND ENGINE
-// Path: netlify/functions/chat.js
+// pages/api/chat.js
 
-exports.handler = async function(event, context) {
-    // 1. Security Gate: Only allow POST requests
-    if (event.httpMethod !== "POST") {
-        return { statusCode: 405, body: "Method Not Allowed" };
+export default async function handler(req, res) {
+  // CORS (optional but nice)
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+
+  try {
+    const { messages, stressLevel } = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: "Invalid payload: messages must be an array." });
     }
 
-    try {
-        // 2. Validate Payload
-        if (!event.body) throw new Error("Null Payload");
-        const { messages, stressLevel } = JSON.parse(event.body);
-
-        // --- API KEY CONFIGURATION ---
-        // OPTION A: For Live Netlify Deployment (SECURE)
-        const apiKey = process.env.OPENAI_API_KEY;
-
-        // OPTION B: For Quick Testing ONLY (UNSECURE)
-        // Uncomment the line below and paste your key inside the quotes. 
-        // DELETE IT BEFORE UPLOADING TO GITHUB.
-        // const apiKey = "sk-proj-YOUR_ACTUAL_KEY_HERE"; 
-
-        // 3. Check if Key Exists
-        if (!apiKey) {
-            console.error("CRITICAL: API Key is missing.");
-            throw new Error("API Key Missing. Set OPENAI_API_KEY in Netlify or paste it in chat.js for testing.");
-        }
-
-        // 4. Advanced Logic: Stress Reaction
-        // If candidate is stressed (high stressLevel), AI becomes more aggressive
-        if (stressLevel && stressLevel > 80 && messages.length > 0) {
-            const lastMsg = messages[messages.length - 1];
-            if (lastMsg.role === 'system') {
-                lastMsg.content += " The candidate is panicking. Press them harder.";
-            }
-        }
-
-        // 5. Connect to OpenAI
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-4o', 
-                messages: messages,
-                temperature: 0.7, // Balances creativity and logic
-                max_tokens: 1000
-            }),
-        });
-
-        // 6. Handle OpenAI Errors
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`OpenAI API Error: ${errorText}`);
-        }
-
-        const data = await response.json();
-
-        // 7. Return Successful Response
-        return {
-            statusCode: 200,
-            headers: { 
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*" // Allow frontend to talk to backend
-            },
-            body: JSON.stringify(data),
-        };
-
-    } catch (error) {
-        console.error("Runtime Error:", error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: error.message || "Internal Server Error" })
-        };
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({
+        error: "API Key Missing. Set OPENAI_API_KEY in Vercel Project Settings → Environment Variables."
+      });
     }
-};
+
+    // Stress logic (same idea as your Netlify code)
+    if (stressLevel && stressLevel > 80 && messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.role === "system") {
+        lastMsg.content += " The candidate is panicking. Press them harder.";
+      }
+    }
+
+    // Responses API call (recommended)
+    const r = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1",
+        input: messages,          // accepts role/content array :contentReference[oaicite:1]{index=1}
+        temperature: 0.7,
+        max_output_tokens: 1000
+      })
+    });
+
+    if (!r.ok) {
+      const errorText = await r.text();
+      return res.status(r.status).json({ error: `OpenAI API Error: ${errorText}` });
+    }
+
+    const data = await r.json();
+
+    // IMPORTANT: Return the SAME SHAPE your frontend expects
+    const content =
+      data.output_text ??
+      (data.output?.[0]?.content?.map?.(c => c.text).join("") ?? "");
+
+    return res.status(200).json({
+      // keep compatibility with your existing frontend parsing
+      choices: [{ message: { content } }],
+      // optional: include raw response for debugging
+      _raw: data
+    });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || "Internal Server Error" });
+  }
+}
