@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANTERVIEW | EVENT HORIZON [PRO]</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@100;400;700;800&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             --neon-cyan: #00f5ff;
@@ -43,7 +43,7 @@
             font-family: 'JetBrains Mono', monospace; font-size: 14px; outline: none; transition: 0.3s;
         }
         .sci-input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 245, 255, 0.15); }
-        
+
         .sci-btn {
             background: var(--neon-cyan); color: #000; font-weight: 800; text-transform: uppercase;
             letter-spacing: 2px; padding: 16px; border-radius: 4px; transition: 0.2s;
@@ -205,10 +205,36 @@
             background: linear-gradient(90deg, var(--neon-cyan), var(--neon-amber), var(--neon-pink));
             transform-origin: left center;
         }
+
+        /* ===== ADDED: LANGUAGE DOCK (Persona-style) ===== */
+        .lang-card {
+            min-width: 180px;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 10px;
+            padding: 12px 14px;
+            position: relative;
+            transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            user-select: none;
+        }
+        .lang-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0,245,255,0.35);
+            background: rgba(0,245,255,0.06);
+        }
+        .lang-card.active {
+            border-color: rgba(0,245,255,0.65);
+            box-shadow: 0 0 22px rgba(0,245,255,0.12);
+            background: rgba(0,245,255,0.08);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .lang-flag { font-size: 18px; line-height: 1; }
+        .lang-name { font-weight: 800; font-size: 12px; letter-spacing: 0.02em; }
+        .lang-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: 0.75; margin-top: 2px; }
     </style>
 </head>
-<body class="flex items-center justify-center h-screen w-screen">
 
+<body class="flex items-center justify-center h-screen w-screen">
     <div class="scanlines"></div>
     <canvas id="starfield" class="fixed inset-0 z-0 opacity-80"></canvas>
 
@@ -227,19 +253,22 @@
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Target Vector (Job Title)</label>
                     <input id="job-title" type="text" placeholder="e.g. Senior Solidity Engineer" class="sci-input">
                 </div>
-                
+
                 <div class="grid grid-cols-2 gap-4" id="mode-grid">
                     <div class="p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer hover:bg-cyan-500/10 transition-colors" onclick="selectMode(this, 'free')">
                         <div class="text-cyan-400 font-bold text-sm mb-1">STANDARD PROTOCOL</div>
                         <div class="text-[10px] text-slate-400">Persona: Herman (Brutal)</div>
                     </div>
-                    
+
                     <div id="pro-card" class="p-4 border border-white/10 bg-black/40 rounded locked-option transition-all duration-300">
                         <div class="locked-badge">PRO ($9)</div>
                         <div class="text-slate-500 font-bold text-sm mb-1">FAANG SIMULATION</div>
                         <div class="text-[10px] text-slate-600">Persona: Google L5 Committee</div>
                     </div>
                 </div>
+
+                <!-- ===== ADDED: Language Dock Mount (persona-style) ===== -->
+                <div id="language-dock-mount"></div>
 
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Tech Stack</label>
@@ -267,7 +296,7 @@
 
     <main id="chat-view" class="fixed inset-0 z-20 hidden flex flex-col items-center justify-center p-4">
         <div class="w-full max-w-5xl h-[85vh] glass-panel rounded-lg flex overflow-hidden shadow-2xl border-t border-cyan-500/50">
-            
+
             <div class="w-64 bg-black/40 border-r border-white/5 p-6 flex flex-col gap-6 hidden md:flex">
                 <div>
                     <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Stress Monitor</div>
@@ -337,14 +366,14 @@
                     <div class="space-y-2">
                         <div class="text-[10px] font-bold text-slate-500 uppercase">Improvement Areas</div>
                         <ul id="tips-list" class="text-xs text-slate-400 space-y-2 mono"></ul>
-                        
+
                         <button onclick="downloadReport()" class="w-full mt-6 border border-white/20 hover:bg-white/5 text-xs text-white py-3 rounded uppercase tracking-wider transition-colors flex items-center justify-center gap-2">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             Download PDF
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="flex justify-end pt-6 border-t border-white/5">
                     <button onclick="location.reload()" class="sci-btn text-xs px-8 py-3">NEW SESSION</button>
                 </div>
@@ -376,8 +405,7 @@
             <span class="text-green-500 font-bold">>> GOD_MODE_NETWORK_TRAFFIC</span>
             <button onclick="document.getElementById('network-monitor').style.display='none'" class="text-green-500 hover:bg-green-500/20 px-2">[HIDE]</button>
         </div>
-        <div id="network-logs" class="h-full overflow-y-auto space-y-2 pb-8 text-green-400/80">
-            </div>
+        <div id="network-logs" class="h-full overflow-y-auto space-y-2 pb-8 text-green-400/80"></div>
     </div>
 
     <div id="dev-console-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
@@ -436,7 +464,7 @@
         }
         function initStars() { stars = []; for(let i=0; i<300; i++) stars.push(new Star()); }
         function animate() { ctx.clearRect(0,0,w,h); stars.forEach(s=>{s.update(); s.draw()}); requestAnimationFrame(animate); }
-        
+
         window.addEventListener('resize', resize);
         window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
         resize(); animate();
@@ -468,11 +496,11 @@
         function initInterview() {
             const job = document.getElementById('job-title').value || "Engineer";
             const stack = document.getElementById('stack').value;
-            
-            const sysPrompt = `You are Herman, a brutal technical interviewer. Job: ${job}. Stack: ${stack}. 
-            RULES: 
+
+            const sysPrompt = `You are Herman, a brutal technical interviewer. Job: ${job}. Stack: ${stack}.
+            RULES:
             1. Be harsh. If answer is vague, roast them.
-            2. Ask ONE hard question. 
+            2. Ask ONE hard question.
             3. Max 5 questions total.
             4. If the user seems stressed (short answers), pressure them.
             5. End with [END].`;
@@ -490,7 +518,7 @@
             addBubble("CANDIDATE", txt, true);
             input.value = ""; input.disabled = true;
             document.getElementById('typing-indicator').style.opacity = 1;
-            
+
             updateStress(Math.random() * 10 - 2);
 
             history.push({role: "user", content: txt});
@@ -502,7 +530,7 @@
 
         async function callAI(msg) {
             const payload = { messages: history, stressLevel: stress };
-            
+
             if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat", payload);
 
             try {
@@ -511,13 +539,13 @@
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                
+
                 if(isGodMode) logNetwork("RES", "200 OK", data);
 
                 if(data.error) throw new Error(data.error);
-                
+
                 const reply = data.choices[0].message.content;
-                
+
                 document.getElementById('typing-indicator').style.opacity = 0;
                 input = document.getElementById('user-input');
                 input.disabled = false; input.focus();
@@ -533,7 +561,7 @@
             } catch(e) {
                 console.error(e);
                 sfxAlert();
-                
+
                 if(isGodMode) logNetwork("ERR", "500 SERVER ERROR", { error: "Failed to fetch. Are you running local?", details: e.message });
 
                 addBubble("SYSTEM", "CONNECTION ERROR: Check Netlify API Key.", false);
@@ -545,7 +573,7 @@
             const entry = document.createElement('div');
             const time = new Date().toISOString().split('T')[1].split('.')[0];
             const color = type === "ERR" ? "text-red-500" : (type === "REQ" ? "text-cyan-500" : "text-green-500");
-            
+
             entry.className = "border-b border-white/10 pb-1 mb-1 font-mono text-[9px] break-all";
             entry.innerHTML = `
                 <div class="flex gap-2 opacity-50 mb-1">
@@ -562,9 +590,9 @@
             const scroll = document.getElementById('chat-scroll');
             const div = document.createElement('div');
             div.className = `flex w-full ${isUser?'justify-end':'justify-start'} msg-enter mb-6`;
-            
+
             const bubble = document.createElement('div');
-            bubble.className = isUser 
+            bubble.className = isUser
                 ? "max-w-[80%] bg-cyan-900/30 border border-cyan-500/30 p-4 rounded-tl-xl rounded-bl-xl rounded-br-xl text-cyan-50"
                 : "max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300";
 
@@ -572,7 +600,7 @@
                 <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase mb-2 ${isUser?'text-cyan-400':'text-pink-400'}">${role}</div>
                 <div class="text-sm leading-relaxed ${!isUser?'mono':''}">${text}</div>
             `;
-            
+
             div.appendChild(bubble);
             scroll.appendChild(div);
             scroll.scrollTop = scroll.scrollHeight;
@@ -588,20 +616,20 @@
                     <div class="text-sm leading-relaxed mono typing-target"></div>
                 </div>`;
             scroll.appendChild(div);
-            
+
             const target = div.querySelector('.typing-target');
             target.classList.add('typing-cursor');
             let i = 0;
-            
+
             function type() {
-                if(i < text.length) { 
-                    target.textContent += text.charAt(i); 
-                    i++; 
+                if(i < text.length) {
+                    target.textContent += text.charAt(i);
+                    i++;
                     scroll.scrollTop = scroll.scrollHeight;
                     if(i % 3 === 0) sfxType();
-                    setTimeout(type, 15); 
-                } else { 
-                    target.classList.remove('typing-cursor'); 
+                    setTimeout(type, 15);
+                } else {
+                    target.classList.remove('typing-cursor');
                 }
             }
             type();
@@ -665,7 +693,7 @@
                     </div>
                 </a>
             `;
-            
+
             playTone(600, 'sine', 0.5);
         }
 
@@ -693,7 +721,7 @@
 
             el.className = "p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer transition-colors shadow-[0_0_15px_rgba(0,245,255,0.1)]";
             el.querySelector('.font-bold').className = "text-cyan-400 font-bold text-sm mb-1";
-            
+
             selectedMode = mode;
             playTone(600, 'sine', 0.05);
         }
@@ -707,7 +735,7 @@
 
             if (keyBuffer.includes(secretWord)) {
                 openDevConsole();
-                keyBuffer = ""; 
+                keyBuffer = "";
             }
         });
 
@@ -731,10 +759,10 @@
         passwordInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const code = passwordInput.value.trim();
-                
+
                 if (code === 'geper') {
                     activateGodMode();
-                } 
+                }
                 else if (code === 'freecourse') {
                     unlockPro();
                 }
@@ -761,19 +789,19 @@
             consoleOverlay.style.display = 'none';
             const card = document.getElementById('pro-card');
             const badge = card.querySelector('.locked-badge');
-            
+
             card.classList.remove('locked-option', 'bg-black/40', 'border-white/10');
             card.classList.add('cursor-pointer', 'border-purple-500', 'bg-purple-900/20', 'hover:bg-purple-900/40');
-            
+
             badge.innerText = "UNLOCKED";
             badge.style.backgroundColor = "#a855f7";
             badge.style.color = "#fff";
-            
+
             const title = card.querySelector('.text-slate-500');
             if(title) title.classList.replace('text-slate-500', 'text-purple-400');
-            
+
             card.setAttribute('onclick', "selectMode(this, 'pro')");
-            
+
             playTone(400, 'square', 0.1);
             setTimeout(() => playTone(600, 'square', 0.1), 100);
             setTimeout(() => playTone(800, 'square', 0.2), 200);
@@ -796,7 +824,7 @@
             const [neon, text] = themes[color];
 
             root.style.setProperty('--neon-cyan', neon);
-            
+
             playTone(color === 'red' ? 100 : 500, 'square', 0.1);
 
             let style = document.getElementById('theme-override');
@@ -813,7 +841,7 @@
                 .bg-cyan-900\\/30 { background-color: ${color === 'white' ? '#334155' : neon}20 !important; }
                 .text-cyan-50 { color: ${color === 'white' ? '#000' : '#fff'} !important; }
                 .shadow-\\[0_0_40px_rgba\\(0\\,245\\,255\\,0\\.05\\)\\] { box-shadow: 0 0 40px ${neon}0d !important; }
-                
+
                 .sci-input:focus { box-shadow: 0 0 15px ${neon}40 !important; border-color: ${neon} !important; }
                 .sci-btn { background: ${neon} !important; color: ${color === 'white' ? '#000' : '#000'} !important; }
                 .sci-btn:hover { box-shadow: 0 0 30px ${neon} !important; background: #fff !important; }
@@ -1017,6 +1045,298 @@ RULES:
                     } catch(e){}
                     return _callAI(msg);
                 }
+            }
+        })();
+    </script>
+
+    <script>
+        (function(){
+            const I18N = {
+                en: {
+                    label_job: "Target Vector (Job Title)",
+                    placeholder_job: "e.g. Senior Solidity Engineer",
+                    label_stack: "Tech Stack",
+                    btn_init: "INITIALIZE",
+                    sys_logs: "SYSTEM LOGS",
+                    stress: "Stress Monitor",
+                    progress: "Question Progress",
+                    feedback: "LIVE FEEDBACK",
+                    input_placeholder: "Type your response...",
+                    ai_processing: "AI PROCESSING...",
+                    session: "SESSION ID:",
+                    encrypted: "ENCRYPTED CONNECTION",
+                    themes: "THEME_OS:",
+                    lang_matrix: "Language Matrix",
+                    lang_hint: "Scroll sideways. Click to switch UI language.",
+                    toast_lang: "LANGUAGE_SET"
+                },
+                ru: {
+                    label_job: "Цель (Должность)",
+                    placeholder_job: "например: Senior Solidity Engineer",
+                    label_stack: "Технологии",
+                    btn_init: "ЗАПУСК",
+                    sys_logs: "СИСТЕМНЫЕ ЛОГИ",
+                    stress: "Монитор Стресса",
+                    progress: "Прогресс Вопросов",
+                    feedback: "ЖИВАЯ ОЦЕНКА",
+                    input_placeholder: "Введите ответ...",
+                    ai_processing: "ИИ ОБРАБАТЫВАЕТ...",
+                    session: "СЕССИЯ:",
+                    encrypted: "ШИФРОВАННОЕ СОЕДИНЕНИЕ",
+                    themes: "ТЕМА_OS:",
+                    lang_matrix: "Матрица Языков",
+                    lang_hint: "Листай вправо. Клик — язык интерфейса.",
+                    toast_lang: "ЯЗЫК"
+                },
+                ro: {
+                    label_job: "Țintă (Funcție)",
+                    placeholder_job: "ex: Senior Solidity Engineer",
+                    label_stack: "Stack Tehnic",
+                    btn_init: "INIȚIALIZEAZĂ",
+                    sys_logs: "JURNALE SISTEM",
+                    stress: "Monitor Stres",
+                    progress: "Progres Întrebări",
+                    feedback: "FEEDBACK LIVE",
+                    input_placeholder: "Scrie răspunsul...",
+                    ai_processing: "AI PROCSEAZĂ...",
+                    session: "ID SESIUNE:",
+                    encrypted: "CONEXIUNE CRIPTATĂ",
+                    themes: "TEMĂ_OS:",
+                    lang_matrix: "Matrice Limbi",
+                    lang_hint: "Derulează lateral. Click pentru limbă UI.",
+                    toast_lang: "LIMBĂ"
+                },
+                uk: {
+                    label_job: "Ціль (Посада)",
+                    placeholder_job: "напр: Senior Solidity Engineer",
+                    label_stack: "Тех Стек",
+                    btn_init: "ІНІЦІАЛІЗУВАТИ",
+                    sys_logs: "СИСТЕМНІ ЛОГИ",
+                    stress: "Монітор Стресу",
+                    progress: "Прогрес Питань",
+                    feedback: "ЖИВИЙ ФІДБЕК",
+                    input_placeholder: "Введіть відповідь...",
+                    ai_processing: "ШІ ОБРОБЛЯЄ...",
+                    session: "ID СЕСІЇ:",
+                    encrypted: "ЗАШИФРОВАНЕ ЗʼЄДНАННЯ",
+                    themes: "ТЕМА_OS:",
+                    lang_matrix: "Матриця Мов",
+                    lang_hint: "Гортай боком. Клік — мова UI.",
+                    toast_lang: "МОВА"
+                },
+                es: {
+                    label_job: "Objetivo (Puesto)",
+                    placeholder_job: "ej: Senior Solidity Engineer",
+                    label_stack: "Stack Tecnológico",
+                    btn_init: "INICIALIZAR",
+                    sys_logs: "REGISTROS DEL SISTEMA",
+                    stress: "Monitor de Estrés",
+                    progress: "Progreso de Preguntas",
+                    feedback: "FEEDBACK EN VIVO",
+                    input_placeholder: "Escribe tu respuesta...",
+                    ai_processing: "IA PROCESANDO...",
+                    session: "ID SESIÓN:",
+                    encrypted: "CONEXIÓN CIFRADA",
+                    themes: "TEMA_OS:",
+                    lang_matrix: "Matriz de Idiomas",
+                    lang_hint: "Desliza lateral. Click para idioma UI.",
+                    toast_lang: "IDIOMA"
+                },
+                fr: {
+                    label_job: "Cible (Poste)",
+                    placeholder_job: "ex : Senior Solidity Engineer",
+                    label_stack: "Stack Technique",
+                    btn_init: "INITIALISER",
+                    sys_logs: "JOURNAUX SYSTÈME",
+                    stress: "Moniteur de Stress",
+                    progress: "Progression Questions",
+                    feedback: "RETOUR EN DIRECT",
+                    input_placeholder: "Tapez votre réponse...",
+                    ai_processing: "IA EN COURS...",
+                    session: "ID SESSION :",
+                    encrypted: "CONNEXION CHIFFRÉE",
+                    themes: "THÈME_OS :",
+                    lang_matrix: "Matrice des Langues",
+                    lang_hint: "Faites défiler. Clic pour langue UI.",
+                    toast_lang: "LANGUE"
+                },
+                de: {
+                    label_job: "Ziel (Jobtitel)",
+                    placeholder_job: "z.B. Senior Solidity Engineer",
+                    label_stack: "Tech-Stack",
+                    btn_init: "INITIALISIEREN",
+                    sys_logs: "SYSTEM-LOGS",
+                    stress: "Stressmonitor",
+                    progress: "Fragenfortschritt",
+                    feedback: "LIVE-FEEDBACK",
+                    input_placeholder: "Antwort eingeben...",
+                    ai_processing: "KI VERARBEITET...",
+                    session: "SESSION-ID:",
+                    encrypted: "VERSCHLÜSSELTE VERBINDUNG",
+                    themes: "THEME_OS:",
+                    lang_matrix: "Sprachmatrix",
+                    lang_hint: "Seitlich scrollen. Klick für UI-Sprache.",
+                    toast_lang: "SPRACHE"
+                }
+            };
+
+            const LANGS = [
+                { id:"en", flag:"🇺🇸", name:"English", sub:"EN" },
+                { id:"ru", flag:"🇷🇺", name:"Русский", sub:"RU" },
+                { id:"ro", flag:"🇲🇩", name:"Română", sub:"RO" },
+                { id:"uk", flag:"🇺🇦", name:"Українська", sub:"UK" },
+                { id:"es", flag:"🇪🇸", name:"Español", sub:"ES" },
+                { id:"fr", flag:"🇫🇷", name:"Français", sub:"FR" },
+                { id:"de", flag:"🇩🇪", name:"Deutsch", sub:"DE" }
+            ];
+
+            const STORE_KEY = "anterview.lang";
+            window.__lang = localStorage.getItem(STORE_KEY) || (navigator.language || "en").slice(0,2);
+            if(!I18N[window.__lang]) window.__lang = "en";
+
+            function t(key){
+                return (I18N[window.__lang] && I18N[window.__lang][key]) || I18N.en[key] || key;
+            }
+            window.__t = t;
+
+            function applyI18n(){
+                const setupStack = document.getElementById("setup-stack");
+                if(setupStack){
+                    const labels = setupStack.querySelectorAll("label");
+                    if(labels[0]) labels[0].textContent = t("label_job");
+                    const jobInput = document.getElementById("job-title");
+                    if(jobInput) jobInput.placeholder = t("placeholder_job");
+                    const stackLabel = document.querySelector("#stack")?.closest("div")?.querySelector("label");
+                    if(stackLabel) stackLabel.textContent = t("label_stack");
+                    const initBtn = document.querySelector("#setup-stack button.sci-btn span");
+                    if(initBtn) initBtn.textContent = t("btn_init");
+                }
+
+                const sysHdr = document.querySelector("#setup-view .w-64 .text-cyan-500");
+                if(sysHdr) sysHdr.textContent = t("sys_logs");
+
+                const userInput = document.getElementById("user-input");
+                if(userInput) userInput.placeholder = t("input_placeholder");
+
+                const typing = document.getElementById("typing-indicator");
+                if(typing) typing.textContent = t("ai_processing");
+
+                const encrypted = document.querySelector("#chat-view .text-emerald-400");
+                if(encrypted) encrypted.textContent = t("encrypted");
+
+                const session = document.querySelector("#chat-view .text-slate-500");
+                if(session && session.textContent.toUpperCase().includes("SESSION ID")) {
+                    session.innerHTML = `${t("session")} <span class="text-white">#X99-ALPHA</span>`;
+                }
+
+                const side = document.querySelector("#chat-view .w-64");
+                if(side){
+                    const labels = side.querySelectorAll(".uppercase.tracking-widest");
+                    labels.forEach(el=>{
+                        const s = el.textContent.trim().toLowerCase();
+                        if(s.includes("stress")) el.textContent = t("stress");
+                        if(s.includes("question")) el.textContent = t("progress");
+                    });
+                    const fb = side.querySelector(".text-red-400.font-bold");
+                    if(fb) fb.textContent = t("feedback");
+                }
+
+                const themeTxt = document.querySelector("#theme-dock .text-slate-500");
+                if(themeTxt) themeTxt.textContent = t("themes");
+            }
+
+            function setLanguage(lang){
+                if(!I18N[lang]) return;
+                window.__lang = lang;
+                localStorage.setItem(STORE_KEY, lang);
+                applyI18n();
+                try{
+                    if(window.__toast) window.__toast(t("toast_lang"), `${LANGS.find(x=>x.id===lang)?.name || lang} :: UI`, 1800);
+                }catch(e){}
+                try{ playTone(540, "square", 0.06); }catch(e){}
+            }
+            window.setLanguage = setLanguage;
+
+            function mountLangDock(){
+                const mount = document.getElementById("language-dock-mount");
+                const setup = document.getElementById("setup-stack");
+                if(!setup || !mount) return;
+
+                const wrap = document.createElement("div");
+                wrap.id = "language-dock";
+                wrap.className = "glass-panel rounded-lg p-4 border border-white/10";
+                wrap.style.background = "rgba(0,0,0,0.18)";
+                wrap.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest" id="lang-title">${t("lang_matrix")}</div>
+                            <div class="text-[9px] mono text-slate-500 opacity-70 mt-1" id="lang-hint">${t("lang_hint")}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="lang-left" class="text-[10px] mono text-cyan-500 border border-cyan-500/30 px-2 py-1 hover:bg-cyan-500/10 transition-colors rounded">◀</button>
+                            <button id="lang-right" class="text-[10px] mono text-cyan-500 border border-cyan-500/30 px-2 py-1 hover:bg-cyan-500/10 transition-colors rounded">▶</button>
+                        </div>
+                    </div>
+                    <div class="persona-fade">
+                        <div id="lang-strip" class="persona-strip persona-scroll"></div>
+                    </div>
+                `;
+                mount.appendChild(wrap);
+
+                const strip = wrap.querySelector("#lang-strip");
+
+                function render(){
+                    strip.innerHTML = "";
+                    LANGS.forEach(L=>{
+                        const card = document.createElement("button");
+                        card.type = "button";
+                        card.className = "lang-card text-left";
+                        if(L.id === window.__lang) card.classList.add("active");
+
+                        card.innerHTML = `
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="lang-flag">${L.flag}</div>
+                                    <div>
+                                        <div class="lang-name">${L.name}</div>
+                                        <div class="lang-sub">${L.sub}</div>
+                                    </div>
+                                </div>
+                                <div class="persona-tag mono">${L.id.toUpperCase()}</div>
+                            </div>
+                        `;
+
+                        card.addEventListener("click", ()=>{
+                            setLanguage(L.id);
+                            [...strip.querySelectorAll(".lang-card")].forEach(x=>x.classList.remove("active"));
+                            card.classList.add("active");
+                            gsap.fromTo(card, {scale:0.995}, {scale:1.01, duration:0.18, yoyo:true, repeat:1, ease:"power2.out"});
+                            const title = document.getElementById("lang-title");
+                            const hint = document.getElementById("lang-hint");
+                            if(title) title.textContent = t("lang_matrix");
+                            if(hint) hint.textContent = t("lang_hint");
+                        });
+
+                        strip.appendChild(card);
+                    });
+
+                    gsap.fromTo(strip.children, {opacity:0, y:8}, {opacity:1, y:0, duration:0.35, ease:"power2.out", stagger:0.03});
+                }
+
+                render();
+
+                wrap.querySelector("#lang-left").addEventListener("click", ()=> strip.scrollBy({left:-260, behavior:"smooth"}));
+                wrap.querySelector("#lang-right").addEventListener("click", ()=> strip.scrollBy({left:260, behavior:"smooth"}));
+            }
+
+            if(document.readyState === "loading"){
+                document.addEventListener("DOMContentLoaded", ()=> {
+                    mountLangDock();
+                    applyI18n();
+                });
+            } else {
+                mountLangDock();
+                applyI18n();
             }
         })();
     </script>
