@@ -362,6 +362,9 @@
                             Calculating trajectory...
                         </div>
                         <div id="affiliate-container"></div>
+
+                        <!-- PATCH: additional results mounts -->
+                        <div id="patch-results" class="space-y-4"></div>
                     </div>
                     <div class="space-y-2">
                         <div class="text-[10px] font-bold text-slate-500 uppercase">Improvement Areas</div>
@@ -1032,6 +1035,8 @@ RULES:
                 return `${base} Job: ${job}. Stack: ${stack}.${rules}`;
             }
 
+            window.buildPrompt = buildPrompt;
+
             if(typeof callAI === "function"){
                 const _callAI = callAI;
                 callAI = async function(msg){
@@ -1340,5 +1345,902 @@ RULES:
             }
         })();
     </script>
+
+    <!-- ============================
+         ANTERVIEW: ADD-ONLY POWER PATCH
+         (Implements all requested upgrades WITHOUT deleting your existing code)
+    ============================= -->
+    <script>
+    (function(){
+      const $ = (q, root=document)=>root.querySelector(q);
+      const $$ = (q, root=document)=>Array.from(root.querySelectorAll(q));
+      const now = ()=>Date.now();
+
+      const clamp = (n,a,b)=>Math.max(a, Math.min(b,n));
+      const safeText = (s)=>String(s ?? "").replace(/\u0000/g,"");
+      const escapeHTML = (s)=>safeText(s)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+      const PATCH = window.__ANTERVIEW_PATCH__ = window.__ANTERVIEW_PATCH__ || {
+        version: "EH-PRO-PATCH-ULTIMATE",
+        sessionId: "X99-ALPHA",
+        startedAt: null,
+        lastKeyAt: 0,
+        lastSendAt: 0,
+        keyCount: 0,
+        backspaces: 0,
+        pasteCount: 0,
+        focusLost: 0,
+        msgMeta: [],
+        aiMeta: [],
+        reactions: {},
+        theoryChecklist: { tradeoffs:0, failure:0, metrics:0, complexity:0, security:0, examples:0, numbers:0 },
+        theoryScore: 0,
+        consoleOpened: false,
+        coding: { tasks: [], currentTask: 0, solved: 0, attempts: 0, lastResult: null },
+        autoScrollLock: false,
+        interviewLang: "en",
+        persona: "herman",
+        theme: "cyan",
+        mode: "free",
+        saved: false
+      };
+
+      function syncInterviewLanguage(){
+        const lang = (window.__lang && typeof window.__lang === "string") ? window.__lang : "en";
+        PATCH.interviewLang = (["en","ru","ro","uk","es","fr","de"].includes(lang) ? lang : "en");
+      }
+      syncInterviewLanguage();
+
+      if(typeof window.setLanguage === "function" && !window.__langPatched2){
+        const _setLanguage = window.setLanguage;
+        window.setLanguage = function(lang){
+          const r = _setLanguage(lang);
+          syncInterviewLanguage();
+          try{ window.__toast && window.__toast("INTERVIEW_LANG", `${PATCH.interviewLang.toUpperCase()} :: AI replies`, 1600); }catch(e){}
+          return r;
+        };
+        window.__langPatched2 = true;
+      }
+
+      if(typeof window.buildPrompt === "function" && !window.__buildPromptPatched2){
+        const _buildPrompt = window.buildPrompt;
+        window.buildPrompt = function(job, stack){
+          const base = _buildPrompt(job, stack);
+          const lang = PATCH.interviewLang || "en";
+          const langRule = `
+LANGUAGE:
+- Reply ONLY in ${lang.toUpperCase()}.
+- Keep the same intensity/persona, but language must match.
+
+EVALUATION RUBRIC (0-5 each):
+- Correctness, Specificity, Structure, Tradeoffs, Production/Observability, Security.
+
+FOLLOW-UP LOGIC:
+- If vague: demand metrics, constraints, examples.
+- If strong: escalate to edge-cases, failure modes, cost, latency, ops.
+
+CODING:
+- After theory is strong enough, ask "ready?" once then auto-open the console.
+- If they solve tasks, reward the final score.
+
+Always:
+- Ask ONE question at a time.
+- Keep replies compact.
+- End the last message with [END].`;
+          return base + "\n" + langRule;
+        };
+        window.__buildPromptPatched2 = true;
+      }
+
+      // ----------------------------
+      // Real stress + theory signals
+      // ----------------------------
+      function analyzeCandidateText(txt){
+        const t = safeText(txt).toLowerCase();
+        const words = t.split(/\s+/).filter(Boolean);
+        const len = txt.length;
+
+        const hasBullets = /(\n\s*[-*•])|(\n\s*\d+\.)/.test(txt);
+        const hasNumbers = /\b\d+(\.\d+)?\b/.test(txt);
+        const hasMetrics = /\b(latency|p99|p95|throughput|qps|rps|slo|sla|error rate|availability|cpu|memory|ram|cost)\b/.test(t);
+        const hasTradeoffs = /\b(trade[- ]?off|pros|cons|however|but|on the other hand|vs)\b/.test(t);
+        const hasFailure = /\b(failure|failover|retry|timeouts?|circuit breaker|backpressure|outage|degrad|fallback)\b/.test(t);
+        const hasSecurity = /\b(auth|oauth|jwt|iam|kms|encryption|rate limit|waf|csrf|xss|secrets?)\b/.test(t);
+        const hasComplexity = /\b(o\(|big[- ]?o|time complexity|space complexity)\b/.test(t);
+        const hasExamples = /\b(for example|e\.g\.|например|de exemplu|napr|напр|наприклад)\b/.test(t);
+        const isIdk = /\b(i don'?t know|idk|no idea|не знаю|nu știu)\b/.test(t);
+
+        return {
+          words: words.length,
+          len,
+          hasBullets,
+          hasNumbers,
+          hasMetrics,
+          hasTradeoffs,
+          hasFailure,
+          hasSecurity,
+          hasComplexity,
+          hasExamples,
+          isIdk
+        };
+      }
+
+      function updateTheoryChecklist(sig){
+        PATCH.theoryChecklist.tradeoffs += sig.hasTradeoffs ? 1 : 0;
+        PATCH.theoryChecklist.failure += sig.hasFailure ? 1 : 0;
+        PATCH.theoryChecklist.metrics += (sig.hasMetrics || sig.hasNumbers) ? 1 : 0;
+        PATCH.theoryChecklist.security += sig.hasSecurity ? 1 : 0;
+        PATCH.theoryChecklist.complexity += sig.hasComplexity ? 1 : 0;
+        PATCH.theoryChecklist.examples += sig.hasExamples ? 1 : 0;
+        PATCH.theoryChecklist.numbers += sig.hasNumbers ? 1 : 0;
+
+        const c = PATCH.theoryChecklist;
+        const score =
+          (c.tradeoffs>0) + (c.failure>0) + (c.metrics>0) + (c.security>0) + (c.examples>0) + (c.complexity>0) + (c.numbers>0);
+        PATCH.theoryScore = score; // 0..7
+      }
+
+      function computeStressDelta(meta, sig){
+        let d = 0;
+        const kpm = meta.kpm || 0;
+        const backRate = meta.backRate || 0;
+
+        if(kpm < 80 && sig.words < 18) d += 8;
+        if(sig.words < 10) d += 10;
+        if(sig.isIdk) d += 14;
+
+        if(backRate > 0.20) d += 8;
+        else if(backRate > 0.12) d += 4;
+
+        if(sig.hasBullets) d -= 6;
+        if(sig.hasNumbers) d -= 4;
+        if(sig.hasMetrics) d -= 5;
+        if(sig.hasTradeoffs) d -= 4;
+        if(sig.hasFailure) d -= 4;
+        if(sig.hasSecurity) d -= 3;
+        if(sig.hasExamples) d -= 3;
+
+        if(sig.len > 260 && !sig.hasBullets) d += 6;
+
+        return clamp(d, -12, 18);
+      }
+
+      function theoryComplete(){
+        // 5/7 signals is “strong enough”
+        return PATCH.theoryScore >= 5;
+      }
+
+      // ----------------------------
+      // Auto-scroll lock (if user scrolls up)
+      // ----------------------------
+      function initAutoScrollLock(){
+        const sc = document.getElementById("chat-scroll");
+        if(!sc || sc.__autoScrollPatched) return;
+        sc.__autoScrollPatched = true;
+
+        function nearBottom(){
+          return (sc.scrollHeight - sc.scrollTop - sc.clientHeight) < 80;
+        }
+
+        sc.addEventListener("scroll", ()=>{
+          PATCH.autoScrollLock = !nearBottom();
+        }, {passive:true});
+      }
+
+      function autoScrollMaybe(){
+        const sc = document.getElementById("chat-scroll");
+        if(!sc) return;
+        if(!PATCH.autoScrollLock){
+          sc.scrollTop = sc.scrollHeight;
+        }
+      }
+
+      // ----------------------------
+      // Input telemetry (typing speed, backspaces, paste)
+      // ----------------------------
+      function initTelemetry(){
+        const input = document.getElementById("user-input");
+        if(!input || input.__telemetryPatched) return;
+        input.__telemetryPatched = true;
+
+        PATCH.startedAt = PATCH.startedAt || now();
+
+        let windowStart = now();
+        let windowKeys = 0;
+        let windowBack = 0;
+
+        input.addEventListener("keydown", (e)=>{
+          PATCH.lastKeyAt = now();
+          PATCH.keyCount++;
+          windowKeys++;
+          if(e.key === "Backspace"){
+            PATCH.backspaces++;
+            windowBack++;
+          }
+        });
+
+        input.addEventListener("paste", ()=>{
+          PATCH.pasteCount++;
+        });
+
+        document.addEventListener("visibilitychange", ()=>{
+          if(document.hidden) PATCH.focusLost++;
+        });
+
+        input.__getKpmMeta = ()=>{
+          const dt = Math.max(1, (now() - windowStart) / 60000);
+          const kpm = windowKeys / dt;
+          const backRate = windowKeys ? (windowBack / windowKeys) : 0;
+          // reset for next message
+          windowStart = now();
+          windowKeys = 0;
+          windowBack = 0;
+          return { kpm, backRate };
+        };
+      }
+
+      // ----------------------------
+      // Safer rendering (avoid HTML injection)
+      // ----------------------------
+      function safeRenderBubbles(){
+        if(typeof window.addBubble !== "function" || window.addBubble.__safePatched) return;
+        const _addBubble = window.addBubble;
+
+        window.addBubble = function(role, text, isUser){
+          const sc = document.getElementById("chat-scroll");
+          const beforeCount = sc ? sc.children.length : 0;
+
+          // call original (keeps your design), but then sanitize the content in-place
+          const r = _addBubble(role, text, isUser);
+
+          try{
+            const after = sc && sc.children[beforeCount] ? sc.children[beforeCount] : (sc ? sc.lastElementChild : null);
+            if(after){
+              const msgBody = after.querySelector(".text-sm.leading-relaxed");
+              if(msgBody) msgBody.innerHTML = escapeHTML(text).replace(/\n/g,"<br>");
+              after.dataset.msgId = after.dataset.msgId || ("m_" + now() + "_" + Math.random().toString(16).slice(2));
+              after.dataset.role = isUser ? "candidate" : "assistant";
+              attachReactions(after);
+            }
+          }catch(e){}
+
+          autoScrollMaybe();
+          return r;
+        };
+        window.addBubble.__safePatched = true;
+      }
+
+      function safeRenderTypewriter(){
+        if(typeof window.typewriter !== "function" || window.typewriter.__safePatched) return;
+        const _typewriter = window.typewriter;
+
+        window.typewriter = function(text){
+          const sc = document.getElementById("chat-scroll");
+          const beforeCount = sc ? sc.children.length : 0;
+          const r = _typewriter(text);
+
+          // After the element exists, ensure it types into textContent only (your code already does),
+          // but we also attach msg id + reactions.
+          try{
+            setTimeout(()=>{
+              const msg = sc && sc.children[beforeCount] ? sc.children[beforeCount] : (sc ? sc.lastElementChild : null);
+              if(msg){
+                msg.dataset.msgId = msg.dataset.msgId || ("a_" + now() + "_" + Math.random().toString(16).slice(2));
+                msg.dataset.role = "assistant";
+                attachReactions(msg);
+              }
+            }, 30);
+          }catch(e){}
+          return r;
+        };
+        window.typewriter.__safePatched = true;
+      }
+
+      // ----------------------------
+      // Reactions (👍 👎) for messages
+      // ----------------------------
+      function attachReactions(container){
+        if(!container || container.__reactPatched) return;
+        container.__reactPatched = true;
+
+        const bubble = container.querySelector("div.max-w-\\[80\\%\\]") || container.firstElementChild;
+        if(!bubble) return;
+
+        const id = container.dataset.msgId || ("x_" + now());
+        container.dataset.msgId = id;
+
+        const bar = document.createElement("div");
+        bar.className = "mt-3 flex items-center gap-2 opacity-70";
+        bar.innerHTML = `
+          <button data-r="up" class="mono text-[10px] border border-white/10 hover:bg-white/5 px-2 py-1 rounded">👍</button>
+          <button data-r="down" class="mono text-[10px] border border-white/10 hover:bg-white/5 px-2 py-1 rounded">👎</button>
+          <span class="mono text-[9px] text-slate-500 ml-2" data-rstat> </span>
+        `;
+        bubble.appendChild(bar);
+
+        function render(){
+          const r = PATCH.reactions[id] || {up:0, down:0};
+          const stat = bar.querySelector("[data-rstat]");
+          if(stat) stat.textContent = r.up || r.down ? `(${r.up} / ${r.down})` : "";
+        }
+        render();
+
+        bar.addEventListener("click", (e)=>{
+          const btn = e.target.closest("button[data-r]");
+          if(!btn) return;
+          PATCH.reactions[id] = PATCH.reactions[id] || {up:0, down:0};
+          if(btn.dataset.r === "up") PATCH.reactions[id].up++;
+          else PATCH.reactions[id].down++;
+          try{ playTone(720, "square", 0.05); }catch(e){}
+          render();
+        });
+      }
+
+      // ----------------------------
+      // Coding console (slide-out)
+      // ----------------------------
+      function ensureCodingUI(){
+        if(document.getElementById("coding-console")) return;
+
+        const root = document.body;
+        const panel = document.createElement("div");
+        panel.id = "coding-console";
+        panel.style.cssText = `
+          position:fixed; top:0; right:0; height:100%; width:min(520px, 92vw);
+          background:rgba(0,0,0,0.82); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+          border-left:1px solid rgba(255,255,255,0.12);
+          z-index:9998; transform:translateX(105%); pointer-events:none;
+          box-shadow: 0 0 60px rgba(0,245,255,0.08);
+          display:flex; flex-direction:column;
+        `;
+        panel.innerHTML = `
+          <div style="padding:16px 16px 12px 16px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div>
+              <div class="mono" style="font-size:10px; letter-spacing:0.22em; text-transform:uppercase; color:var(--neon-cyan); opacity:0.9;">>> CODING_CONSOLE</div>
+              <div class="mono" style="font-size:9px; opacity:0.65; margin-top:4px;">Solve tasks. Press RUN TESTS. Passing boosts final score.</div>
+            </div>
+            <button id="coding-close" class="mono text-[10px] border border-white/10 hover:bg-white/5 px-3 py-2 rounded">[CLOSE]</button>
+          </div>
+
+          <div id="coding-task" style="padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.08);"></div>
+
+          <div style="flex:1; padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
+            <textarea id="coding-editor" class="mono" style="
+              flex:1; width:100%; resize:none;
+              background:rgba(255,255,255,0.04);
+              border:1px solid rgba(255,255,255,0.10);
+              border-radius:12px;
+              padding:12px;
+              outline:none;
+              color:#fff;
+              font-size:12px;
+              line-height:1.4;
+            " spellcheck="false"></textarea>
+
+            <div style="display:flex; gap:10px;">
+              <button id="coding-run" class="mono" style="
+                flex:1;
+                padding:12px;
+                border-radius:12px;
+                border:1px solid rgba(0,245,255,0.35);
+                background:rgba(0,245,255,0.08);
+              ">[RUN TESTS]</button>
+              <button id="coding-next" class="mono" style="
+                width:140px;
+                padding:12px;
+                border-radius:12px;
+                border:1px solid rgba(255,255,255,0.12);
+                background:rgba(255,255,255,0.04);
+              ">[NEXT]</button>
+            </div>
+
+            <div id="coding-output" class="mono" style="
+              background:rgba(0,0,0,0.5);
+              border:1px solid rgba(255,255,255,0.10);
+              border-radius:12px;
+              padding:10px;
+              font-size:10px;
+              color:#cbd5e1;
+              min-height:60px;
+              white-space:pre-wrap;
+              overflow:auto;
+              max-height:160px;
+            "></div>
+          </div>
+        `;
+        root.appendChild(panel);
+
+        PATCH.coding.tasks = PATCH.coding.tasks.length ? PATCH.coding.tasks : defaultTasks();
+
+        $("#coding-close").addEventListener("click", closeCodingConsole);
+        $("#coding-next").addEventListener("click", ()=>{
+          PATCH.coding.currentTask = (PATCH.coding.currentTask + 1) % PATCH.coding.tasks.length;
+          renderTask();
+          try{ playTone(640, "sine", 0.06); }catch(e){}
+        });
+        $("#coding-run").addEventListener("click", runTests);
+
+        renderTask();
+      }
+
+      function defaultTasks(){
+        return [
+          {
+            id:"t1",
+            title:"Warm-up: Reverse String",
+            prompt:`Implement a function <b>reverseString(s)</b> that returns the reversed string.`,
+            template:
+`function reverseString(s){
+  // TODO
+}
+
+module.exports = { reverseString };`,
+            tests:(api)=>{
+              const { reverseString } = api;
+              if(typeof reverseString !== "function") throw new Error("reverseString is not a function");
+              if(reverseString("abc") !== "cba") throw new Error("Expected cba");
+              if(reverseString("") !== "") throw new Error("Expected empty string");
+              if(reverseString("a") !== "a") throw new Error("Expected a");
+              return true;
+            }
+          },
+          {
+            id:"t2",
+            title:"Hashmap: First Non-Repeating Char Index",
+            prompt:`Implement <b>firstUniqueIndex(s)</b> that returns the index of the first non-repeating char, or -1.`,
+            template:
+`function firstUniqueIndex(s){
+  // TODO
+}
+
+module.exports = { firstUniqueIndex };`,
+            tests:(api)=>{
+              const { firstUniqueIndex } = api;
+              if(typeof firstUniqueIndex !== "function") throw new Error("firstUniqueIndex is not a function");
+              if(firstUniqueIndex("leetcode") !== 0) throw new Error("leetcode -> 0");
+              if(firstUniqueIndex("aabb") !== -1) throw new Error("aabb -> -1");
+              if(firstUniqueIndex("loveleetcode") !== 2) throw new Error("loveleetcode -> 2");
+              return true;
+            }
+          },
+          {
+            id:"t3",
+            title:"Concurrency Thinking: Rate Limiter (token bucket)",
+            prompt:`Implement <b>allow()</b> in a TokenBucket class. Constructor: (capacity, refillPerSec). allow() returns true/false.`,
+            template:
+`class TokenBucket{
+  constructor(capacity, refillPerSec){
+    this.capacity = capacity;
+    this.refillPerSec = refillPerSec;
+    this.tokens = capacity;
+    this.last = Date.now();
+  }
+  allow(){
+    // TODO
+  }
+}
+
+module.exports = { TokenBucket };`,
+            tests:(api)=>{
+              const { TokenBucket } = api;
+              if(typeof TokenBucket !== "function") throw new Error("TokenBucket missing");
+              const b = new TokenBucket(2, 1000); // super fast refill
+              if(!b.allow()) throw new Error("first should allow");
+              if(!b.allow()) throw new Error("second should allow");
+              // third may allow due to refill; force no refill by setting last to now
+              b.last = Date.now();
+              b.tokens = 0;
+              if(b.allow() !== false) throw new Error("should block when empty and no time passed");
+              return true;
+            }
+          }
+        ];
+      }
+
+      function openCodingConsole(){
+        ensureCodingUI();
+        const panel = document.getElementById("coding-console");
+        if(!panel) return;
+        PATCH.consoleOpened = true;
+        panel.style.pointerEvents = "auto";
+        gsap.to(panel, {x:0, duration:0.5, ease:"power3.out"});
+        window.__toast && window.__toast("CODING", "Console opened. Pass tests to boost score.", 2000);
+      }
+
+      function closeCodingConsole(){
+        const panel = document.getElementById("coding-console");
+        if(!panel) return;
+        gsap.to(panel, {x:"105%", duration:0.42, ease:"power3.in", onComplete:()=>{
+          panel.style.pointerEvents = "none";
+        }});
+      }
+
+      function renderTask(){
+        const task = PATCH.coding.tasks[PATCH.coding.currentTask];
+        const taskBox = document.getElementById("coding-task");
+        const ed = document.getElementById("coding-editor");
+        const out = document.getElementById("coding-output");
+        if(!taskBox || !ed || !out) return;
+
+        taskBox.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div>
+              <div class="mono" style="font-size:12px; font-weight:800; letter-spacing:-0.01em;">${escapeHTML(task.title)}</div>
+              <div class="mono" style="font-size:10px; opacity:0.75; margin-top:6px;">${task.prompt}</div>
+            </div>
+            <div class="mono" style="font-size:10px; opacity:0.7;">TASK ${PATCH.coding.currentTask+1}/${PATCH.coding.tasks.length}</div>
+          </div>
+        `;
+        ed.value = task.template;
+        out.textContent = "Ready. Implement and click [RUN TESTS].";
+      }
+
+      function runTests(){
+        const task = PATCH.coding.tasks[PATCH.coding.currentTask];
+        const ed = document.getElementById("coding-editor");
+        const out = document.getElementById("coding-output");
+        if(!task || !ed || !out) return;
+
+        PATCH.coding.attempts++;
+
+        const code = ed.value;
+        const module = { exports:{} };
+        const exports = module.exports;
+
+        try{
+          const fn = new Function("module","exports", code + "\n;return module.exports;");
+          const api = fn(module, exports) || module.exports;
+
+          task.tests(api);
+
+          PATCH.coding.solved = Math.min(PATCH.coding.tasks.length, PATCH.coding.solved + (PATCH.coding.lastResult === task.id ? 0 : 1));
+          PATCH.coding.lastResult = task.id;
+
+          out.textContent = `✅ PASS\nSolved: ${PATCH.coding.solved}/${PATCH.coding.tasks.length}\nAttempts: ${PATCH.coding.attempts}`;
+          try{ playTone(820, "square", 0.08); playTone(980, "square", 0.08); }catch(e){}
+          window.__toast && window.__toast("TESTS", "PASS ✅", 1200);
+
+        } catch(err){
+          out.textContent = `❌ FAIL\n${String(err && err.message ? err.message : err)}`;
+          try{ playTone(180, "sawtooth", 0.15); }catch(e){}
+          window.__toast && window.__toast("TESTS", "FAIL ❌", 1200);
+        }
+      }
+
+      // ----------------------------
+      // Command palette (Ctrl/⌘+K)
+      // ----------------------------
+      function ensureCommandPalette(){
+        if(document.getElementById("cmdk")) return;
+        const el = document.createElement("div");
+        el.id = "cmdk";
+        el.style.cssText = `
+          position:fixed; inset:0; z-index:9997; display:none;
+          background:rgba(0,0,0,0.62); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+          align-items:flex-start; justify-content:center; padding-top:9vh;
+        `;
+        el.innerHTML = `
+          <div class="glass-panel" style="width:min(720px, 92vw); border-radius:16px; padding:14px;">
+            <div class="mono" style="font-size:10px; letter-spacing:0.22em; text-transform:uppercase; color:var(--neon-cyan); opacity:0.9;">>> COMMAND PALETTE</div>
+            <input id="cmdk-input" class="mono" style="
+              width:100%; margin-top:10px; padding:12px; border-radius:12px;
+              background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.12);
+              outline:none; color:#fff; font-size:12px;
+            " placeholder="type: theme cyan | persona mira | lang ro | export | console | clear" />
+            <div id="cmdk-hint" class="mono" style="margin-top:10px; font-size:10px; opacity:0.65;">
+              Commands: theme [cyan/red/green/amber/white] · persona [herman/vex/aegis/mira/nyx] · lang [en/ru/ro/uk/es/fr/de] · console · export · clear
+            </div>
+          </div>
+        `;
+        document.body.appendChild(el);
+
+        function open(){
+          el.style.display = "flex";
+          gsap.fromTo(el.firstElementChild, {opacity:0, y:-10, scale:0.98}, {opacity:1, y:0, scale:1, duration:0.22, ease:"power2.out"});
+          setTimeout(()=>$("#cmdk-input")?.focus(), 30);
+        }
+        function close(){
+          gsap.to(el.firstElementChild, {opacity:0, y:-8, scale:0.98, duration:0.18, ease:"power2.in", onComplete:()=>{
+            el.style.display = "none";
+          }});
+        }
+
+        el.addEventListener("click", (e)=>{ if(e.target === el) close(); });
+
+        document.addEventListener("keydown", (e)=>{
+          const isK = e.key.toLowerCase() === "k";
+          if((e.ctrlKey || e.metaKey) && isK){
+            e.preventDefault();
+            if(el.style.display === "flex") close();
+            else open();
+          }
+          if(e.key === "Escape" && el.style.display === "flex") close();
+        });
+
+        $("#cmdk-input").addEventListener("keydown", (e)=>{
+          if(e.key === "Enter"){
+            const raw = e.target.value.trim();
+            e.target.value = "";
+            handleCommand(raw);
+            close();
+          }
+          if(e.key === "Escape") close();
+        });
+
+        function handleCommand(raw){
+          const parts = raw.split(/\s+/).filter(Boolean);
+          const cmd = (parts[0] || "").toLowerCase();
+          const arg = (parts[1] || "").toLowerCase();
+
+          if(cmd === "theme" && typeof window.setTheme === "function"){
+            window.setTheme(arg || "cyan");
+            window.__toast && window.__toast("CMD", `Theme -> ${arg||"cyan"}`, 1400);
+            return;
+          }
+          if(cmd === "persona"){
+            window.__selectedPersona = arg || "herman";
+            window.__toast && window.__toast("CMD", `Persona -> ${window.__selectedPersona}`, 1400);
+            return;
+          }
+          if(cmd === "lang" && typeof window.setLanguage === "function"){
+            window.setLanguage(arg || "en");
+            return;
+          }
+          if(cmd === "console"){
+            openCodingConsole();
+            return;
+          }
+          if(cmd === "export"){
+            exportSession();
+            return;
+          }
+          if(cmd === "clear"){
+            try{ localStorage.removeItem("anterview.sessions"); }catch(e){}
+            window.__toast && window.__toast("CMD", "Saved sessions cleared.", 1400);
+            return;
+          }
+
+          window.__toast && window.__toast("CMD", "Unknown command.", 1400);
+        }
+      }
+
+      // ----------------------------
+      // Session saving + export
+      // ----------------------------
+      function snapshotSession(){
+        return {
+          v: PATCH.version,
+          at: new Date().toISOString(),
+          persona: window.__selectedPersona || "herman",
+          lang: PATCH.interviewLang,
+          stress: (typeof window.stress === "number" ? window.stress : null),
+          theoryScore: PATCH.theoryScore,
+          coding: PATCH.coding,
+          history: Array.isArray(window.history) ? window.history : null
+        };
+      }
+
+      function saveSession(){
+        try{
+          const key = "anterview.sessions";
+          const list = JSON.parse(localStorage.getItem(key) || "[]");
+          list.unshift(snapshotSession());
+          localStorage.setItem(key, JSON.stringify(list.slice(0, 20)));
+          PATCH.saved = true;
+        }catch(e){}
+      }
+
+      function exportSession(){
+        const data = snapshotSession();
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "anterview_session.json";
+        a.click();
+        setTimeout(()=>URL.revokeObjectURL(url), 1000);
+        window.__toast && window.__toast("EXPORT", "Session JSON downloaded.", 1600);
+      }
+
+      // ----------------------------
+      // Wrap initInterview to apply patched prompt
+      // ----------------------------
+      function patchInitInterview(){
+        if(typeof window.initInterview !== "function" || window.initInterview.__patched) return;
+        const _init = window.initInterview;
+        window.initInterview = function(){
+          const r = _init();
+          try{
+            // force first system message to include patched buildPrompt
+            if(Array.isArray(window.history) && window.history[0] && window.history[0].role === "system"){
+              const job = document.getElementById("job-title")?.value || "Engineer";
+              const stack = document.getElementById("stack")?.value || "General";
+              window.history[0].content = window.buildPrompt(job, stack);
+            }
+          }catch(e){}
+          return r;
+        };
+        window.initInterview.__patched = true;
+      }
+
+      // ----------------------------
+      // Wrap sendMsg: compute stress from signals + auto-open coding console
+      // ----------------------------
+      function patchSendMsg(){
+        if(typeof window.sendMsg !== "function" || window.sendMsg.__patched) return;
+        const _send = window.sendMsg;
+
+        window.sendMsg = async function(){
+          const input = document.getElementById("user-input");
+          const txt = input ? input.value.trim() : "";
+          const meta = input && input.__getKpmMeta ? input.__getKpmMeta() : {kpm:0, backRate:0};
+          const sig = analyzeCandidateText(txt);
+
+          if(txt){
+            updateTheoryChecklist(sig);
+            const d = computeStressDelta(meta, sig);
+            // override your random stress update by applying a compensating update right after send
+            setTimeout(()=>{
+              try{
+                if(typeof window.updateStress === "function") window.updateStress(d);
+              }catch(e){}
+            }, 0);
+
+            PATCH.msgMeta.push({ at: now(), txtLen: sig.len, words: sig.words, ...meta, ...sig, stressDelta: d, theoryScore: PATCH.theoryScore });
+
+            // If theory is complete and console not opened, prime the next AI question to be coding-related
+            if(theoryComplete() && !PATCH.consoleOpened){
+              PATCH.consoleOpened = true;
+              setTimeout(()=> openCodingConsole(), 650);
+            }
+          }
+
+          const r = await _send();
+          autoScrollMaybe();
+          return r;
+        };
+        window.sendMsg.__patched = true;
+      }
+
+      // ----------------------------
+      // Patch callAI: make sure prompt is updated + capture assistant meta
+      // ----------------------------
+      function patchCallAI(){
+        if(typeof window.callAI !== "function" || window.callAI.__patched) return;
+        const _call = window.callAI;
+
+        window.callAI = async function(msg){
+          try{
+            if(Array.isArray(window.history) && window.history[0] && window.history[0].role === "system"){
+              const job = document.getElementById("job-title")?.value || "Engineer";
+              const stack = document.getElementById("stack")?.value || "General";
+              window.history[0].content = window.buildPrompt(job, stack);
+            }
+          }catch(e){}
+
+          const t0 = now();
+          const r = await _call(msg);
+
+          try{
+            PATCH.aiMeta.push({ at: now(), dtMs: now()-t0 });
+          }catch(e){}
+
+          return r;
+        };
+        window.callAI.__patched = true;
+      }
+
+      // ----------------------------
+      // Patch endGame/generateReport: boost score from coding + show rubric block
+      // ----------------------------
+      function patchGenerateReport(){
+        if(typeof window.generateReport !== "function" || window.generateReport.__patched) return;
+        const _gen = window.generateReport;
+
+        window.generateReport = async function(){
+          const r = await _gen();
+
+          try{
+            const mount = document.getElementById("patch-results");
+            if(mount){
+              const theory = PATCH.theoryScore;
+              const solved = PATCH.coding.solved || 0;
+              const total = PATCH.coding.tasks.length || 0;
+              const attempts = PATCH.coding.attempts || 0;
+
+              mount.innerHTML = `
+                <div class="p-4 bg-white/5 rounded border border-white/5">
+                  <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Patch Metrics</div>
+                  <div class="mono text-[10px] text-slate-300 space-y-1">
+                    <div>> Theory Signals: ${theory}/7</div>
+                    <div>> Coding: ${solved}/${total} solved (attempts: ${attempts})</div>
+                    <div>> Telemetry: keys=${PATCH.keyCount}, backspaces=${PATCH.backspaces}, pastes=${PATCH.pasteCount}, focusLost=${PATCH.focusLost}</div>
+                  </div>
+                </div>
+              `;
+            }
+
+            // boost final score visually (no destructive changes; just add a tiny bonus)
+            const solvedRatio = (PATCH.coding.tasks.length ? (PATCH.coding.solved / PATCH.coding.tasks.length) : 0);
+            const bonus = Math.round(solvedRatio * 12); // up to +12%
+            const scoreEl = document.getElementById("final-score");
+            if(scoreEl){
+              const cur = parseInt(String(scoreEl.textContent||"0").replace(/\D/g,"")) || 0;
+              const boosted = clamp(cur + bonus, 0, 100);
+              scoreEl.textContent = boosted + "%";
+              window.__toast && window.__toast("BONUS", `Coding bonus +${bonus}%`, 1800);
+            }
+
+            saveSession();
+          }catch(e){}
+
+          return r;
+        };
+        window.generateReport.__patched = true;
+      }
+
+      // ----------------------------
+      // Dev console safety: lockout after multiple wrong attempts (does not remove your codes)
+      // ----------------------------
+      function patchDevConsoleLockout(){
+        const input = document.getElementById("dev-password-input");
+        const err = document.getElementById("dev-error");
+        if(!input || input.__lockoutPatched) return;
+        input.__lockoutPatched = true;
+
+        let fails = 0;
+        let lockedUntil = 0;
+
+        input.addEventListener("keypress", (e)=>{
+          if(e.key !== "Enter") return;
+          if(now() < lockedUntil){
+            if(err) err.style.display = "block";
+            try{ window.__toast && window.__toast("LOCKOUT", "Too many failed attempts. Wait 10s.", 1600); }catch(e){}
+            e.preventDefault();
+            return;
+          }
+          setTimeout(()=>{
+            // if error visible -> count fail
+            if(err && err.style.display !== "none"){
+              fails++;
+              if(fails >= 4){
+                lockedUntil = now() + 10000;
+                fails = 0;
+                try{ window.__toast && window.__toast("LOCKOUT", "Console locked for 10 seconds.", 1600); }catch(e){}
+              }
+            } else {
+              fails = 0;
+            }
+          }, 0);
+        });
+      }
+
+      // ----------------------------
+      // Boot
+      // ----------------------------
+      function boot(){
+        initAutoScrollLock();
+        initTelemetry();
+        safeRenderBubbles();
+        safeRenderTypewriter();
+        ensureCommandPalette();
+        patchInitInterview();
+        patchSendMsg();
+        patchCallAI();
+        patchGenerateReport();
+        patchDevConsoleLockout();
+      }
+
+      if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+      else boot();
+    })();
+    </script>
+
 </body>
 </html>
+
