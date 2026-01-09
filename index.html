@@ -19,11 +19,9 @@
             --border: rgba(255, 255, 255, 0.1);
         }
 
-        /* RESET & BASE */
         body { font-family: 'Space Grotesk', sans-serif; background-color: var(--void); color: #fff; overflow: hidden; cursor: crosshair; transition: background-color 0.5s; }
         .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* CRT SCANLINE EFFECT */
         .scanlines {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
@@ -32,7 +30,6 @@
             pointer-events: none;
         }
 
-        /* GLASSMORPHISM */
         .glass-panel {
             background: rgba(10, 11, 15, 0.85);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -40,7 +37,6 @@
             box-shadow: 0 0 40px rgba(0, 245, 255, 0.05), inset 0 0 20px rgba(255,255,255,0.02);
         }
 
-        /* UI ELEMENTS */
         .sci-input {
             width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border);
             padding: 16px; border-radius: 4px; color: var(--neon-cyan);
@@ -56,35 +52,158 @@
         .sci-btn:hover { background: #fff; box-shadow: 0 0 30px var(--neon-cyan); }
         .sci-btn:active { transform: scale(0.98); }
 
-        /* LOCKED FEATURE */
         .locked-option { opacity: 0.5; cursor: not-allowed; position: relative; border: 1px solid #333; }
         .locked-badge { position: absolute; right: 10px; top: 10px; font-size: 9px; background: var(--neon-pink); color: white; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
 
-        /* ANIMATIONS */
         .msg-enter { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
 
         .typing-cursor::after { content: '█'; animation: blink 0.8s infinite; color: var(--neon-cyan); margin-left: 4px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* STRESS BAR */
         .stress-container { width: 100%; height: 4px; background: #333; margin-top: 8px; position: relative; overflow: hidden; }
         .stress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-amber), var(--neon-pink)); width: 0%; transition: width 0.5s ease; }
 
-        /* THEME SELECTOR SCROLLBAR */
         .theme-scroll::-webkit-scrollbar { height: 0px; background: transparent; }
 
-        /* PERSONA BUTTONS */
-        .persona-btn {
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.05);
-            transition: 0.3s;
-            cursor: pointer;
+        /* ===== ADDED: PERSONALITY DOCK ===== */
+        .persona-scroll::-webkit-scrollbar { height: 0px; background: transparent; }
+        .persona-card {
+            min-width: 210px;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 10px;
+            padding: 14px;
+            position: relative;
+            transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            user-select: none;
         }
-        .persona-btn.active {
-            border-color: var(--neon-cyan);
-            background: rgba(0, 245, 255, 0.1);
-            box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
+        .persona-card:hover { transform: translateY(-2px); border-color: rgba(0,245,255,0.35); background: rgba(0,245,255,0.06); }
+        .persona-card.active {
+            border-color: rgba(0,245,255,0.65);
+            box-shadow: 0 0 22px rgba(0,245,255,0.12);
+            background: rgba(0,245,255,0.08);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .persona-lock {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 9px;
+            background: rgba(255,0,85,0.9);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+        }
+        .persona-tag {
+            display: inline-flex;
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.04);
+            opacity: 0.85;
+        }
+        .persona-title { font-weight: 800; letter-spacing: -0.01em; }
+        .persona-desc { font-size: 10px; opacity: 0.75; line-height: 1.35; }
+        .persona-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 2px 2px 2px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        .persona-strip > .persona-card { scroll-snap-align: start; }
+        .persona-fade {
+            position: relative;
+        }
+        .persona-fade:before, .persona-fade:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 42px;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .persona-fade:before {
+            left: 0;
+            background: linear-gradient(90deg, rgba(10,11,15,0.95), rgba(10,11,15,0));
+        }
+        .persona-fade:after {
+            right: 0;
+            background: linear-gradient(270deg, rgba(10,11,15,0.95), rgba(10,11,15,0));
+        }
+
+        /* ===== ADDED: TOASTS (replaces dev alerts without removing alert calls) ===== */
+        #toast-layer {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: none;
+            max-width: min(520px, 90vw);
+            border-radius: 12px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0,0,0,0.72);
+            box-shadow: 0 0 30px rgba(0,245,255,0.06);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            overflow: hidden;
+            position: relative;
+        }
+        .toast:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 20%, rgba(0,245,255,0.12), transparent 50%);
+            opacity: 0.8;
+        }
+        .toast .h {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 10px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        .toast .b {
+            position: relative;
+            margin-top: 6px;
+            font-size: 12px;
+            line-height: 1.35;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.92;
+        }
+        .toast .bar {
+            position: relative;
+            height: 2px;
+            width: 100%;
+            margin-top: 10px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+            border-radius: 999px;
+        }
+        .toast .bar > i {
+            display: block;
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-amber), var(--neon-pink));
+            transform-origin: left center;
         }
     </style>
 </head>
@@ -97,58 +216,28 @@
         <button onclick="toggleAudio()" id="audio-btn" class="text-xs font-mono text-cyan-500 border border-cyan-500/30 px-3 py-1 hover:bg-cyan-500/10 transition-colors">[AUDIO: OFF]</button>
     </div>
 
-    <section id="setup-view" class="relative z-10 w-full max-w-5xl flex gap-8 p-4">
+    <section id="setup-view" class="relative z-10 w-full max-w-4xl flex gap-8 p-4">
         <div class="flex-1 glass-panel p-10 rounded-lg relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
             <h1 class="text-5xl font-bold tracking-tighter mb-2">ANTERVIEW<span class="text-cyan-400">.OS</span></h1>
             <p class="text-xs mono text-slate-500 mb-8 tracking-[0.2em]">NEURAL LINK STATUS: ONLINE</p>
 
-            <div class="space-y-6">
+            <div class="space-y-6" id="setup-stack">
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Target Vector (Job Title)</label>
                     <input id="job-title" type="text" placeholder="e.g. Senior Solidity Engineer" class="sci-input">
                 </div>
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4" id="mode-grid">
                     <div class="p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer hover:bg-cyan-500/10 transition-colors" onclick="selectMode(this, 'free')">
                         <div class="text-cyan-400 font-bold text-sm mb-1">STANDARD PROTOCOL</div>
-                        <div class="text-[10px] text-slate-400">Public Sector Neural Net</div>
+                        <div class="text-[10px] text-slate-400">Persona: Herman (Brutal)</div>
                     </div>
                     
                     <div id="pro-card" class="p-4 border border-white/10 bg-black/40 rounded locked-option transition-all duration-300">
                         <div class="locked-badge">PRO ($9)</div>
                         <div class="text-slate-500 font-bold text-sm mb-1">FAANG SIMULATION</div>
-                        <div class="text-[10px] text-slate-600">Enterprise High-Stress AI</div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Interviewer Persona</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <div class="persona-btn active p-3 rounded text-center" onclick="setPersona('herman', this)">
-                            <div class="text-[10px] font-bold">HERMAN</div>
-                            <div class="text-[8px] text-slate-500">Brutal</div>
-                        </div>
-                        <div class="persona-btn p-3 rounded text-center" onclick="setPersona('ivy', this)">
-                            <div class="text-[10px] font-bold">IVY</div>
-                            <div class="text-[8px] text-slate-500">Coaching</div>
-                        </div>
-                        <div class="persona-btn p-3 rounded text-center" onclick="setPersona('vex', this)">
-                            <div class="text-[10px] font-bold">VEX</div>
-                            <div class="text-[8px] text-slate-500">Chaos</div>
-                        </div>
-                        <div class="persona-btn p-3 rounded text-center" onclick="setPersona('atlas', this)">
-                            <div class="text-[10px] font-bold">ATLAS</div>
-                            <div class="text-[8px] text-slate-500">Systems</div>
-                        </div>
-                        <div class="persona-btn p-3 rounded text-center" onclick="setPersona('marcus', this)">
-                            <div class="text-[10px] font-bold">MARCUS</div>
-                            <div class="text-[8px] text-slate-500">Founder</div>
-                        </div>
-                        <div id="chen-btn" class="persona-btn p-3 rounded text-center opacity-40 cursor-not-allowed">
-                            <div class="text-[10px] font-bold">CHEN</div>
-                            <div class="text-[8px] text-slate-500">Staff Eng</div>
-                        </div>
+                        <div class="text-[10px] text-slate-600">Persona: Google L5 Committee</div>
                     </div>
                 </div>
 
@@ -162,17 +251,16 @@
                 </div>
 
                 <button onclick="bootSystem()" class="sci-btn w-full mt-4 flex justify-center items-center gap-2">
-                    <span>INITIALIZE INTERVIEW</span>
+                    <span>INITIALIZE</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
             </div>
         </div>
 
-        <div class="w-72 glass-panel p-6 rounded-lg hidden md:block">
-            <div class="text-[10px] mono text-cyan-500 mb-4 border-b border-cyan-500/20 pb-2">SESSION LOGS</div>
+        <div class="w-64 glass-panel p-6 rounded-lg hidden md:block">
+            <div class="text-[10px] mono text-cyan-500 mb-4 border-b border-cyan-500/20 pb-2">SYSTEM LOGS</div>
             <div id="boot-log" class="text-[9px] mono text-slate-400 space-y-1 opacity-70">
                 <div>> Kernel loaded...</div>
-                <div>> Waiting for identity...</div>
             </div>
         </div>
     </section>
@@ -181,14 +269,6 @@
         <div class="w-full max-w-5xl h-[85vh] glass-panel rounded-lg flex overflow-hidden shadow-2xl border-t border-cyan-500/50">
             
             <div class="w-64 bg-black/40 border-r border-white/5 p-6 flex flex-col gap-6 hidden md:flex">
-                <div>
-                    <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Neural Status</div>
-                    <div class="p-2 bg-cyan-500/10 border border-cyan-500/20 rounded">
-                        <div class="text-[10px] font-bold text-cyan-400" id="current-persona-display">HERMAN.AI</div>
-                        <div class="text-[8px] text-slate-500 uppercase">Mode: Theory</div>
-                    </div>
-                </div>
-
                 <div>
                     <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Stress Monitor</div>
                     <div class="stress-container rounded-full">
@@ -199,11 +279,9 @@
                     </div>
                 </div>
 
-                <div class="flex-1 flex flex-col overflow-hidden">
-                    <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Neural Logic Logs</div>
-                    <div id="neural-logs" class="flex-1 overflow-y-auto space-y-1 pr-2">
-                        <div class="log-entry" style="color: #00f5ff; font-size: 10px; opacity: 0.7; font-family: monospace;">> Link established.</div>
-                    </div>
+                <div>
+                    <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2">Question Progress</div>
+                    <div class="text-4xl font-bold text-white mono" id="q-counter">01<span class="text-lg text-slate-600">/05</span></div>
                 </div>
 
                 <div class="mt-auto">
@@ -274,21 +352,6 @@
         </div>
     </section>
 
-    <div id="unlock-modal" style="display: none;" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center">
-        <div class="w-96 glass-panel p-8 rounded-lg border-2 border-purple-500 relative overflow-hidden transform scale-0" id="unlock-container">
-            <div class="absolute inset-0 bg-purple-900/20 animate-pulse"></div>
-            <div class="relative z-10 text-center">
-                <div class="text-4xl mb-4">🔓</div>
-                <h3 class="text-2xl font-bold text-purple-400 mb-2 tracking-widest">ACCESS GRANTED</h3>
-                <p class="text-xs mono text-purple-300 mb-6">OVERRIDING SECURITY PROTOCOLS...</p>
-                <div class="w-full h-1 bg-gray-800 rounded overflow-hidden">
-                    <div class="h-full bg-purple-500 w-0" id="unlock-progress"></div>
-                </div>
-                <div class="mt-4 text-[10px] mono text-purple-400" id="unlock-text">DECRYPTING...</div>
-            </div>
-        </div>
-    </div>
-
     <div id="theme-dock" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-3 rounded-full glass-panel scale-90 opacity-60 hover:opacity-100 hover:scale-100 transition-all duration-300 backdrop-blur-md theme-scroll" style="max-width: 90vw; overflow-x: auto;">
         <span class="text-[9px] mono text-slate-500 hidden md:block pl-2">THEME_OS:</span>
         <button onclick="setTheme('cyan')" class="w-8 h-8 rounded-full border border-cyan-500 bg-cyan-900/50 hover:bg-cyan-500 hover:shadow-[0_0_15px_#06b6d4] transition-all relative group">
@@ -317,28 +380,24 @@
             </div>
     </div>
 
-    <div id="dev-console-overlay" style="display: none;" class="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center">
-        <div class="w-96 glass-panel p-8 rounded-lg border-2 border-cyan-500 relative overflow-hidden">
-            <div class="absolute inset-0 bg-cyan-900/20 animate-pulse"></div>
-            <div class="relative z-10">
-                <p class="text-cyan-400 font-mono text-sm mb-4 tracking-widest">> SYSTEM OVERRIDE DETECTED</p>
-                <input type="text" id="dev-password-input" placeholder="ENTER PASSCODE..." class="w-full bg-transparent border-b border-cyan-500 text-cyan-300 font-mono text-lg outline-none py-2 focus:border-cyan-300 transition-colors" autocomplete="off">
-                <p id="dev-error" style="display: none;" class="text-red-500 font-mono text-xs mt-4">> ACCESS DENIED</p>
-            </div>
+    <div id="dev-console-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: #000; border: 2px solid #0f0; padding: 20px; width: 300px; font-family: 'Courier New', monospace; box-shadow: 0 0 20px #0f0;">
+            <p style="color: #0f0; margin: 0 0 10px 0; text-transform: uppercase;">> SYSTEM OVERRIDE DETECTED</p>
+            <input type="text" id="dev-password-input" placeholder="ENTER PASSCODE..." style="background: transparent; border: none; border-bottom: 1px solid #0f0; color: #0f0; width: 100%; outline: none; font-family: 'Courier New', monospace; font-size: 16px;">
+            <p id="dev-error" style="color: red; display: none; margin-top: 10px;">> ACCESS DENIED</p>
         </div>
     </div>
 
+    <div id="toast-layer"></div>
+
     <script>
-        /* =========================================
-           SYSTEM: AUDIO ENGINE (Synthesized SFX)
-           ========================================= */
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let audioEnabled = false;
 
         function toggleAudio() {
             audioEnabled = !audioEnabled;
             document.getElementById('audio-btn').innerText = audioEnabled ? "[AUDIO: ON]" : "[AUDIO: OFF]";
-            if(audioEnabled) playTone(440, 'sine', 0.1); // Test beep
+            if(audioEnabled) playTone(440, 'sine', 0.1);
         }
 
         function playTone(freq, type, duration) {
@@ -355,65 +414,39 @@
             osc.stop(audioCtx.currentTime + duration);
         }
 
-        function sfxType() { playTone(800 + Math.random()*200, 'square', 0.05); } // Typing sound
-        function sfxSend() { playTone(400, 'sine', 0.3); playTone(600, 'sine', 0.3); } // Send sound
-        function sfxAlert() { playTone(200, 'sawtooth', 0.4); } // Alert sound
-        function sfxUnlock() {
-            // Arpeggio for unlock
-            let now = audioCtx.currentTime;
-            [440, 554, 659, 880].forEach((freq, i) => {
-                setTimeout(() => playTone(freq, 'square', 0.2), i * 100);
-            });
-        }
+        function sfxType() { playTone(800 + Math.random()*200, 'square', 0.05); }
+        function sfxSend() { playTone(400, 'sine', 0.3); playTone(600, 'sine', 0.3); }
+        function sfxAlert() { playTone(200, 'sawtooth', 0.4); }
+    </script>
 
-        /* =========================================
-           SYSTEM: PARTICLE PHYSICS (Starfield)
-           ========================================= */
+    <script>
         const cvs = document.getElementById('starfield');
         const ctx = cvs.getContext('2d');
         let w, h, stars = [], mouse = {x:0, y:0};
 
         function resize() { w = cvs.width = window.innerWidth; h = cvs.height = window.innerHeight; initStars(); }
         class Star {
-            // UPDATED STAR SIZE AND BRIGHTNESS
             constructor() { this.x = Math.random()*w; this.y = Math.random()*h; this.z = Math.random()*2; this.size = Math.random()*2.5 + 0.5; }
             update() {
-                // Parallax effect based on mouse
                 this.x += (mouse.x - w/2) * 0.0005 * this.z;
                 this.y += (mouse.y - h/2) * 0.0005 * this.z;
                 if(this.x<0) this.x=w; if(this.x>w) this.x=0; if(this.y<0) this.y=h; if(this.y>h) this.y=0;
             }
-            // UPDATED STAR BRIGHTNESS (Alpha increased to 0.7)
             draw() { ctx.fillStyle=`rgba(255,255,255,${0.7*this.z})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
         }
-        // UPDATED STAR COUNT (Doubled to 300)
         function initStars() { stars = []; for(let i=0; i<300; i++) stars.push(new Star()); }
         function animate() { ctx.clearRect(0,0,w,h); stars.forEach(s=>{s.update(); s.draw()}); requestAnimationFrame(animate); }
         
         window.addEventListener('resize', resize);
         window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
         resize(); animate();
+    </script>
 
-        /* =========================================
-           SYSTEM: GAME LOGIC
-           ========================================= */
-        
-        // --- ADDED: PERSONA DATA & STATE ---
-        const personas = {
-            herman: { name: "HERMAN", prompt: "You are Herman, a brutal technical interviewer. Roast the user. Be strict and rude.", log: "Persona Herman loaded (Brutal)" },
-            ivy: { name: "IVY", prompt: "You are Ivy, a coaching interviewer. Be sharp but helpful and encouraging.", log: "Persona Ivy loaded (Coaching)" },
-            vex: { name: "VEX", prompt: "You are Vex, a chaotic interviewer. Fast-paced, focused on edge cases and tricks.", log: "Persona Vex loaded (Chaos)" },
-            atlas: { name: "ATLAS", prompt: "You are Atlas, a Systems Architect. Focus entirely on scalability, databases, and trade-offs. Be calm but deep.", log: "Persona Atlas loaded (Systems)" },
-            marcus: { name: "MARCUS", prompt: "You are Marcus, a frenetic startup founder. You don't care about theory, you care about shipping. Ask practical, 'get it done' questions.", log: "Persona Marcus loaded (Startup)" },
-            chen: { name: "DR. CHEN", prompt: "You are Dr. Chen, a FAANG Staff Engineer. Extremely formal, academic, obsessed with Big-O.", log: "Persona Chen loaded (FAANG)" }
-        };
-
-        let selectedPersona = 'herman';
+    <script>
         let history = [], currentQ = 1, maxQ = 5;
-        let stress = 20; // 0 to 100
-        let isGodMode = false; // DEV MODE FLAG
+        let stress = 20;
+        let isGodMode = false;
 
-        // Boot Animation
         function log(msg) {
             const el = document.getElementById('boot-log');
             el.innerHTML += `<div>> ${msg}</div>`;
@@ -421,20 +454,8 @@
         setTimeout(() => log("Loading assets..."), 500);
         setTimeout(() => log("Connecting to neural net..."), 1200);
 
-        // --- ADDED: PERSONA SELECTOR LOGIC ---
-        function setPersona(key, el) {
-            selectedPersona = key;
-            document.querySelectorAll('.persona-btn').forEach(btn => btn.classList.remove('active'));
-            el.classList.add('active');
-            playTone(400, 'sine', 0.1);
-        }
-
         function bootSystem() {
-            playTone(100, 'sawtooth', 1.0); // Boot sound
-            
-            // Update UI with selected persona name
-            document.getElementById('current-persona-display').innerText = selectedPersona.toUpperCase() + ".AI";
-
+            playTone(100, 'sawtooth', 1.0);
             const tl = gsap.timeline();
             tl.to("#setup-view", { opacity: 0, scale: 0.9, duration: 0.5, onComplete: () => {
                 document.getElementById('setup-view').style.display = 'none';
@@ -444,34 +465,20 @@
             .from("#chat-view", { opacity: 0, scale: 1.05, duration: 0.8 });
         }
 
-        // --- ADDED: LOG FUNCTION FOR SIDE PANEL ---
-        function addLog(msg) {
-            const logEl = document.getElementById('neural-logs');
-            const entry = document.createElement('div');
-            entry.className = "log-entry";
-            entry.style.color = "#00f5ff"; 
-            entry.style.fontSize = "10px";
-            entry.style.opacity = "0.7";
-            entry.style.fontFamily = "monospace";
-            entry.innerText = `> ${msg}`;
-            logEl.prepend(entry);
-        }
-
         function initInterview() {
             const job = document.getElementById('job-title').value || "Engineer";
             const stack = document.getElementById('stack').value;
             
-            // --- UPDATED: USE SELECTED PERSONA ---
-            const p = personas[selectedPersona];
-            const sysPrompt = `${p.prompt} Job: ${job}. Stack: ${stack}. 
+            const sysPrompt = `You are Herman, a brutal technical interviewer. Job: ${job}. Stack: ${stack}. 
             RULES: 
-            1. Ask ONE hard question. 
-            2. Max 5 questions total.
-            3. End with [END].`;
+            1. Be harsh. If answer is vague, roast them.
+            2. Ask ONE hard question. 
+            3. Max 5 questions total.
+            4. If the user seems stressed (short answers), pressure them.
+            5. End with [END].`;
 
             history.push({role: "system", content: sysPrompt});
             callAI("Start interview.");
-            addLog(p.log);
         }
 
         async function sendMsg() {
@@ -484,12 +491,11 @@
             input.value = ""; input.disabled = true;
             document.getElementById('typing-indicator').style.opacity = 1;
             
-            // Gamification: Typing speed calculation could go here to affect stress
-            updateStress(Math.random() * 10 - 2); // Random stress fluctuation
+            updateStress(Math.random() * 10 - 2);
 
             history.push({role: "user", content: txt});
             currentQ++;
-            if(currentQ <= maxQ) document.getElementById('q-counter').innerText = `Q: 0${currentQ}/05`;
+            if(currentQ <= maxQ) document.getElementById('q-counter').innerHTML = `0${currentQ}<span class="text-lg text-slate-600">/05</span>`;
 
             await callAI(txt);
         }
@@ -497,18 +503,15 @@
         async function callAI(msg) {
             const payload = { messages: history, stressLevel: stress };
             
-            // GOD MODE LOGGER: OUTGOING
             if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat", payload);
 
             try {
-                // NETLIFY CALL
                 const res = await fetch("/.netlify/functions/chat", {
                     method: "POST",
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
                 
-                // GOD MODE LOGGER: INCOMING
                 if(isGodMode) logNetwork("RES", "200 OK", data);
 
                 if(data.error) throw new Error(data.error);
@@ -524,24 +527,19 @@
                 } else {
                     history.push({role: "assistant", content: reply});
                     typewriter(reply);
-                    // Increase stress if AI is long-winded
                     if(reply.length > 200) updateStress(10);
-                    addLog("Sentiment Analyzed: Stable");
                 }
 
             } catch(e) {
                 console.error(e);
                 sfxAlert();
                 
-                // GOD MODE LOGGER: ERROR
                 if(isGodMode) logNetwork("ERR", "500 SERVER ERROR", { error: "Failed to fetch. Are you running local?", details: e.message });
 
                 addBubble("SYSTEM", "CONNECTION ERROR: Check Netlify API Key.", false);
-                document.getElementById('user-input').disabled = false; // re-enable input
             }
         }
 
-        // --- GOD MODE LOGGER FUNCTION ---
         function logNetwork(type, header, data) {
             const container = document.getElementById('network-logs');
             const entry = document.createElement('div');
@@ -557,7 +555,7 @@
                 </div>
                 <div class="pl-4 opacity-70">${JSON.stringify(data).substring(0, 300)}...</div>
             `;
-            container.prepend(entry); // Newest on top
+            container.prepend(entry);
         }
 
         function addBubble(role, text, isUser) {
@@ -584,10 +582,9 @@
             const scroll = document.getElementById('chat-scroll');
             const div = document.createElement('div');
             div.className = `flex w-full justify-start msg-enter mb-6`;
-            // UPDATED: Dynamic Persona Name
             div.innerHTML = `
                 <div class="max-w-[80%] bg-white/5 border border-white/10 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl text-slate-300 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-                    <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase text-pink-400 mb-2">${selectedPersona.toUpperCase()}</div>
+                    <div class="text-[9px] font-bold opacity-50 mb-1 tracking-widest uppercase text-pink-400 mb-2">HERMAN</div>
                     <div class="text-sm leading-relaxed mono typing-target"></div>
                 </div>`;
             scroll.appendChild(div);
@@ -601,7 +598,7 @@
                     target.textContent += text.charAt(i); 
                     i++; 
                     scroll.scrollTop = scroll.scrollHeight;
-                    if(i % 3 === 0) sfxType(); // Sound every 3 chars
+                    if(i % 3 === 0) sfxType();
                     setTimeout(type, 15); 
                 } else { 
                     target.classList.remove('typing-cursor'); 
@@ -614,15 +611,11 @@
             stress = Math.max(0, Math.min(100, stress + amount));
             const bar = document.getElementById('stress-bar');
             bar.style.width = `${stress}%`;
-            // Change color based on stress
             if(stress < 50) bar.style.background = "var(--neon-cyan)";
             else if(stress < 80) bar.style.background = "var(--neon-amber)";
             else bar.style.background = "var(--neon-pink)";
         }
 
-        /* =========================================
-           SYSTEM: RESULTS & MONETIZATION
-           ========================================= */
         function endGame() {
             gsap.to("#chat-view", { opacity: 0, duration: 1, onComplete: () => {
                 document.getElementById('chat-view').style.display = 'none';
@@ -639,7 +632,6 @@
             const data = await res.json();
             const stats = JSON.parse(data.choices[0].message.content.replace(/```json|```/g, ""));
 
-            // Animate Score
             let obj = { val: 0 };
             gsap.to(obj, { val: stats.score, duration: 2, onUpdate: () => {
                 document.getElementById('final-score').innerText = Math.round(obj.val) + "%";
@@ -648,9 +640,8 @@
             document.getElementById('final-summary').innerText = stats.summary;
             document.getElementById('tips-list').innerHTML = stats.tips.map(t => `<li>> ${t}</li>`).join('');
 
-            // SMART MONETIZATION INJECTION
             const container = document.getElementById('affiliate-container');
-            let adLink = "https://www.tryexponent.com/?ref=YOUR_ID"; // Replace with your ID
+            let adLink = "https://www.tryexponent.com/?ref=YOUR_ID";
             let adText = "MASTER SYSTEM DESIGN";
             let adSub = "Recommended Course";
 
@@ -675,7 +666,7 @@
                 </a>
             `;
             
-            playTone(600, 'sine', 0.5); // Success sound
+            playTone(600, 'sine', 0.5);
         }
 
         function downloadReport() {
@@ -690,22 +681,16 @@
     </script>
 
     <script>
-        // ==========================================
-        //  UI LOGIC: MODE SELECTION (ADDED)
-        // ==========================================
         let selectedMode = 'free';
 
         function selectMode(el, mode) {
-            // 1. Reset all cards to "default" inactive state
             document.querySelectorAll('#setup-view .border-cyan-500\\/50').forEach(c => {
                 c.className = "p-4 border border-white/10 bg-black/40 rounded cursor-pointer hover:bg-white/5 transition-colors";
-                // Reset text colors inside
                 if(c.querySelector('.text-cyan-400')) {
                     c.querySelector('.text-cyan-400').className = "text-slate-400 font-bold text-sm mb-1";
                 }
             });
 
-            // 2. Highlight the clicked card
             el.className = "p-4 border border-cyan-500/50 bg-cyan-500/5 rounded cursor-pointer transition-colors shadow-[0_0_15px_rgba(0,245,255,0.1)]";
             el.querySelector('.font-bold').className = "text-cyan-400 font-bold text-sm mb-1";
             
@@ -713,12 +698,8 @@
             playTone(600, 'sine', 0.05);
         }
 
-        // ==========================================
-        //  GOD MODE / DEVELOPER CONSOLE LOGIC
-        // ==========================================
-        
         let keyBuffer = "";
-        const secretWord = "goop"; // CHANGED FROM geper TO goop
+        const secretWord = "mimimami";
 
         document.addEventListener('keydown', (e) => {
             keyBuffer += e.key;
@@ -751,90 +732,59 @@
             if (e.key === 'Enter') {
                 const code = passwordInput.value.trim();
                 
-                if (code === 'goop') { // Changed check
+                if (code === 'geper') {
                     activateGodMode();
                 } 
-                else if (code === 'freecourse') { // CHEAT CODE FOR UNLOCK
+                else if (code === 'freecourse') {
                     unlockPro();
                 }
                 else {
                     errorMsg.style.display = 'block';
                     passwordInput.style.borderBottom = '1px solid red';
-                    playTone(150, 'sawtooth', 0.3); // Error buzz
+                    playTone(150, 'sawtooth', 0.3);
                 }
             }
         });
 
         function activateGodMode() {
             consoleOverlay.style.display = 'none';
-            isGodMode = true; // Enable logging
+            isGodMode = true;
             const netMon = document.getElementById('network-monitor');
-            netMon.style.display = 'block'; // Show Network Bar
+            netMon.style.display = 'block';
 
-            // Visual Flair
             document.body.style.fontFamily = "'Courier New', monospace";
             alert("🔓 GOD MODE UNLOCKED: Network Monitor Active");
             console.log("Welcome back, Creator.");
         }
 
-        // --- NEW: ANIMATED UNLOCK FUNCTION ---
         function unlockPro() {
-            // 1. Close Dev Console
             consoleOverlay.style.display = 'none';
+            const card = document.getElementById('pro-card');
+            const badge = card.querySelector('.locked-badge');
             
-            // 2. Show Unlock Modal
-            const modal = document.getElementById('unlock-modal');
-            const container = document.getElementById('unlock-container');
-            const progress = document.getElementById('unlock-progress');
-            const txt = document.getElementById('unlock-text');
+            card.classList.remove('locked-option', 'bg-black/40', 'border-white/10');
+            card.classList.add('cursor-pointer', 'border-purple-500', 'bg-purple-900/20', 'hover:bg-purple-900/40');
             
-            modal.style.display = 'flex';
-            // Animation for container pop-in
-            gsap.to(container, { scale: 1, duration: 0.5, ease: "back.out(1.7)" });
-            sfxType();
+            badge.innerText = "UNLOCKED";
+            badge.style.backgroundColor = "#a855f7";
+            badge.style.color = "#fff";
+            
+            const title = card.querySelector('.text-slate-500');
+            if(title) title.classList.replace('text-slate-500', 'text-purple-400');
+            
+            card.setAttribute('onclick', "selectMode(this, 'pro')");
+            
+            playTone(400, 'square', 0.1);
+            setTimeout(() => playTone(600, 'square', 0.1), 100);
+            setTimeout(() => playTone(800, 'square', 0.2), 200);
 
-            // 3. Animate Progress Bar
-            gsap.to(progress, { width: "100%", duration: 2, ease: "power2.inOut", onComplete: () => {
-                // 4. Success State
-                sfxUnlock();
-                txt.innerText = "FAANG MODE ACTIVE";
-                txt.style.color = "#a855f7"; // Purple text
-                container.style.borderColor = "#a855f7"; // Purple border
-                
-                // 5. Update Actual UI Elements (Unlock Logic)
-                const card = document.getElementById('pro-card');
-                const badge = card.querySelector('.locked-badge');
-                
-                card.classList.remove('locked-option', 'bg-black/40', 'border-white/10');
-                card.classList.add('cursor-pointer', 'border-purple-500', 'bg-purple-900/20', 'hover:bg-purple-900/40');
-                
-                badge.innerText = "UNLOCKED";
-                badge.style.backgroundColor = "#a855f7";
-                badge.style.color = "#fff";
-                card.querySelector('.text-slate-500').classList.replace('text-slate-500', 'text-purple-400');
-                
-                // Enable Chen
-                const chenBtn = document.getElementById('chen-btn');
-                chenBtn.classList.remove('opacity-40', 'cursor-not-allowed');
-                chenBtn.setAttribute('onclick', "setPersona('chen', this)");
-
-                // Enable Card Click
-                card.setAttribute('onclick', "selectMode(this, 'pro')");
-
-                // 6. Hide Modal after delay
-                setTimeout(() => {
-                    gsap.to(container, { scale: 0, opacity: 0, duration: 0.3, onComplete: () => {
-                        modal.style.display = 'none';
-                    }});
-                }, 1500);
-            }});
+            alert("🔓 CHEAT CODE ACCEPTED: FAANG SIMULATION UNLOCKED");
         }
     </script>
 
     <script>
         function setTheme(color) {
             const root = document.documentElement;
-            // Define palettes: [Main Neon, Secondary/Text]
             const themes = {
                 cyan: ['#00f5ff', '#00f5ff'],
                 red: ['#ef4444', '#ef4444'],
@@ -845,15 +795,10 @@
 
             const [neon, text] = themes[color];
 
-            // 1. Update Custom Properties
             root.style.setProperty('--neon-cyan', neon);
             
-            // 2. Play Sound
             playTone(color === 'red' ? 100 : 500, 'square', 0.1);
 
-            // 3. OVERRIDE TAILWIND CLASSES DYNAMICALLY
-            // This is required because Tailwind classes (like text-cyan-500) are static.
-            // We inject a style tag to force them to change color.
             let style = document.getElementById('theme-override');
             if (!style) {
                 style = document.createElement('style');
@@ -869,12 +814,211 @@
                 .text-cyan-50 { color: ${color === 'white' ? '#000' : '#fff'} !important; }
                 .shadow-\\[0_0_40px_rgba\\(0\\,245\\,255\\,0\\.05\\)\\] { box-shadow: 0 0 40px ${neon}0d !important; }
                 
-                /* Specific overrides for buttons and inputs */
                 .sci-input:focus { box-shadow: 0 0 15px ${neon}40 !important; border-color: ${neon} !important; }
                 .sci-btn { background: ${neon} !important; color: ${color === 'white' ? '#000' : '#000'} !important; }
                 .sci-btn:hover { box-shadow: 0 0 30px ${neon} !important; background: #fff !important; }
             `;
         }
+    </script>
+
+    <script>
+        (function(){
+            const layer = document.getElementById('toast-layer');
+            function toast(header, body, ms=2600){
+                const t = document.createElement('div');
+                t.className = 'toast';
+                t.innerHTML = `
+                    <div class="h"><span style="color:var(--neon-cyan)">>> </span><span>${header}</span></div>
+                    <div class="b">${body}</div>
+                    <div class="bar"><i></i></div>
+                `;
+                layer.appendChild(t);
+                gsap.fromTo(t, {opacity:0, y:-10, scale:0.98}, {opacity:1, y:0, scale:1, duration:0.35, ease:"power3.out"});
+                const bar = t.querySelector('.bar > i');
+                gsap.fromTo(bar, {scaleX:1}, {scaleX:0, duration: ms/1000, ease:"none"});
+                setTimeout(()=> {
+                    gsap.to(t, {opacity:0, y:-8, scale:0.98, duration:0.28, ease:"power2.in", onComplete:()=>t.remove()});
+                }, ms);
+            }
+            window.__toast = toast;
+
+            const nativeAlert = window.alert.bind(window);
+            window.alert = function(msg){
+                const s = String(msg ?? "");
+                const isDevMsg = s.includes("GOD MODE UNLOCKED") || s.includes("CHEAT CODE ACCEPTED") || s.includes("Network Monitor Active") || s.includes("FAANG SIMULATION UNLOCKED");
+                if(isDevMsg){
+                    try { toast("DEV_CONSOLE", s.replace("🔓 ","")); } catch(e){}
+                    return;
+                }
+                return nativeAlert(msg);
+            };
+        })();
+    </script>
+
+    <script>
+        (function(){
+            window.__proUnlocked = false;
+            if(typeof unlockPro === "function"){
+                const _unlockPro = unlockPro;
+                unlockPro = function(){
+                    const r = _unlockPro();
+                    window.__proUnlocked = true;
+                    try { window.__toast && window.__toast("PROTOCOL", "FAANG SIMULATION: ACCESS GRANTED"); } catch(e){}
+                    return r;
+                }
+            }
+        })();
+    </script>
+
+    <script>
+        (function(){
+            window.__selectedPersona = "herman";
+            const personas = [
+                { id:"herman", name:"HERMAN", tag:"BRUTAL", desc:"Cuts fluff. Roasts vague answers. Forces specifics.", pro:false },
+                { id:"vex", name:"VEX", tag:"ADVERSARIAL", desc:"Interrupts, challenges assumptions, digs for edge-cases.", pro:false },
+                { id:"aegis", name:"AEGIS", tag:"SYSTEMS", desc:"Obsessed with tradeoffs, reliability, SLOs, failure modes.", pro:false },
+                { id:"mira", name:"MIRA", tag:"COACH", desc:"Supportive but strict. Gives micro-feedback and upgrades your answer.", pro:false },
+                { id:"nyx", name:"NYX", tag:"RAPID-FIRE", desc:"Short questions, fast follow-ups, no downtime.", pro:false },
+                { id:"committee", name:"L5 COMMITTEE", tag:"FAANG", desc:"Calibration-heavy. Signals, scope, impact, leadership.", pro:true },
+                { id:"barraiser", name:"BAR-RAISER", tag:"AMAZON", desc:"Principles-driven probing. Evidence > vibes.", pro:true },
+                { id:"pragmatist", name:"PRAGMATIST", tag:"PROD", desc:"Shipping mindset. Costs, latency, ops, on-call reality.", pro:true }
+            ];
+
+            function mountPersonaDock(){
+                const setup = document.getElementById('setup-stack');
+                if(!setup) return;
+
+                const techBlock = document.getElementById('stack')?.closest('div');
+                if(!techBlock) return;
+
+                const wrap = document.createElement('div');
+                wrap.id = "persona-dock";
+                wrap.className = "glass-panel rounded-lg p-4 border border-white/10";
+                wrap.style.background = "rgba(0,0,0,0.18)";
+                wrap.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Personality Matrix</div>
+                            <div class="text-[9px] mono text-slate-500 opacity-70 mt-1">Scroll sideways. Click to arm persona.</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="persona-left" class="text-[10px] mono text-cyan-500 border border-cyan-500/30 px-2 py-1 hover:bg-cyan-500/10 transition-colors rounded">◀</button>
+                            <button id="persona-right" class="text-[10px] mono text-cyan-500 border border-cyan-500/30 px-2 py-1 hover:bg-cyan-500/10 transition-colors rounded">▶</button>
+                        </div>
+                    </div>
+                    <div class="persona-fade">
+                        <div id="persona-strip" class="persona-strip persona-scroll"></div>
+                    </div>
+                `;
+
+                setup.insertBefore(wrap, techBlock);
+
+                const strip = wrap.querySelector('#persona-strip');
+
+                function render(){
+                    strip.innerHTML = "";
+                    personas.forEach(p=>{
+                        const locked = p.pro && !window.__proUnlocked;
+                        const card = document.createElement('button');
+                        card.type = "button";
+                        card.className = "persona-card text-left";
+                        card.dataset.persona = p.id;
+                        card.innerHTML = `
+                            ${locked ? `<div class="persona-lock">PRO</div>` : ``}
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="persona-title text-sm">${p.name}</div>
+                                <div class="persona-tag mono" style="border-color:${p.id===window.__selectedPersona?'rgba(0,245,255,0.45)':'rgba(255,255,255,0.12)'}">${p.tag}</div>
+                            </div>
+                            <div class="persona-desc mono mt-2">${p.desc}</div>
+                        `;
+                        if(p.id === window.__selectedPersona) card.classList.add('active');
+                        if(locked){
+                            card.style.opacity = "0.6";
+                            card.style.cursor = "not-allowed";
+                        }
+                        card.addEventListener('click', ()=>{
+                            if(locked){
+                                sfxAlert();
+                                gsap.fromTo(card, {x:0}, {x:8, yoyo:true, repeat:5, duration:0.06, ease:"power1.inOut"});
+                                window.__toast && window.__toast("LOCKED", "Requires PRO unlock (use your console override).", 2200);
+                                return;
+                            }
+                            window.__selectedPersona = p.id;
+                            [...strip.querySelectorAll('.persona-card')].forEach(x=>x.classList.remove('active'));
+                            card.classList.add('active');
+                            playTone(620, 'sine', 0.06);
+                            gsap.fromTo(card, {scale:0.995}, {scale:1.01, duration:0.18, yoyo:true, repeat:1, ease:"power2.out"});
+                            window.__toast && window.__toast("PERSONA_ARMED", `${p.name} :: ${p.tag}`, 1600);
+                        });
+                        strip.appendChild(card);
+                    });
+
+                    gsap.fromTo(strip.children, {opacity:0, y:8}, {opacity:1, y:0, duration:0.35, ease:"power2.out", stagger:0.03});
+                }
+
+                render();
+
+                const left = wrap.querySelector('#persona-left');
+                const right = wrap.querySelector('#persona-right');
+                left.addEventListener('click', ()=> strip.scrollBy({left:-260, behavior:"smooth"}));
+                right.addEventListener('click', ()=> strip.scrollBy({left:260, behavior:"smooth"}));
+
+                const _selectMode = window.selectMode;
+                window.selectMode = function(el, mode){
+                    const r = _selectMode(el, mode);
+                    render();
+                    return r;
+                };
+            }
+
+            if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountPersonaDock);
+            else mountPersonaDock();
+        })();
+    </script>
+
+    <script>
+        (function(){
+            function buildPrompt(job, stack){
+                const p = String(window.__selectedPersona || "herman");
+                const personaPrompts = {
+                    herman: `You are Herman, a brutal technical interviewer.`,
+                    vex: `You are Vex, an adversarial technical interviewer who aggressively challenges assumptions and hunts edge-cases.`,
+                    aegis: `You are Aegis, a systems-focused interviewer obsessed with reliability, SLOs, failure modes, and tradeoffs.`,
+                    mira: `You are Mira, a strict but supportive interviewer: concise coaching, then a harder follow-up.`,
+                    nyx: `You are Nyx, a rapid-fire interviewer: short questions, fast follow-ups, no long speeches.`,
+                    committee: `You are a Google L5 hiring committee simulator: calibration-focused, scope/impact/leadership signals, and precise evaluation.`,
+                    barraiser: `You are an Amazon Bar Raiser simulator: leadership principles probing, evidence-driven, and skeptical of hand-wavy claims.`,
+                    pragmatist: `You are a pragmatic production interviewer: cost, latency, observability, and operational reality first.`
+                };
+
+                const base = personaPrompts[p] || personaPrompts.herman;
+
+                const rules = `
+RULES:
+1. Ask ONE hard question at a time.
+2. Max 5 questions total.
+3. If the answer is vague, demand specifics and examples.
+4. Keep responses compact but intense. No essays.
+5. End the last message with [END].`;
+
+                return `${base} Job: ${job}. Stack: ${stack}.${rules}`;
+            }
+
+            if(typeof callAI === "function"){
+                const _callAI = callAI;
+                callAI = async function(msg){
+                    try{
+                        if(Array.isArray(history) && history.length > 0 && history[0].role === "system" && !window.__promptPatched){
+                            const job = document.getElementById('job-title')?.value || "Engineer";
+                            const stack = document.getElementById('stack')?.value || "General";
+                            history[0].content = buildPrompt(job, stack);
+                            window.__promptPatched = true;
+                        }
+                    } catch(e){}
+                    return _callAI(msg);
+                }
+            }
+        })();
     </script>
 </body>
 </html>
