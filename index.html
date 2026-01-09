@@ -14,7 +14,6 @@
             --neon-cyan: #00f5ff;
             --neon-pink: #ff0055;
             --neon-amber: #ff9900;
-            --neon-purple: #a855f7;
             --void: #030305;
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
@@ -125,7 +124,7 @@
 
                 <div>
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Interviewer Persona</label>
-                    <div class="grid grid-cols-4 gap-2">
+                    <div class="grid grid-cols-3 gap-2">
                         <div class="persona-btn active p-3 rounded text-center" onclick="setPersona('herman', this)">
                             <div class="text-[10px] font-bold">HERMAN</div>
                             <div class="text-[8px] text-slate-500">Brutal</div>
@@ -137,6 +136,14 @@
                         <div class="persona-btn p-3 rounded text-center" onclick="setPersona('vex', this)">
                             <div class="text-[10px] font-bold">VEX</div>
                             <div class="text-[8px] text-slate-500">Chaos</div>
+                        </div>
+                        <div class="persona-btn p-3 rounded text-center" onclick="setPersona('atlas', this)">
+                            <div class="text-[10px] font-bold">ATLAS</div>
+                            <div class="text-[8px] text-slate-500">Systems</div>
+                        </div>
+                        <div class="persona-btn p-3 rounded text-center" onclick="setPersona('marcus', this)">
+                            <div class="text-[10px] font-bold">MARCUS</div>
+                            <div class="text-[8px] text-slate-500">Founder</div>
                         </div>
                         <div id="chen-btn" class="persona-btn p-3 rounded text-center opacity-40 cursor-not-allowed">
                             <div class="text-[10px] font-bold">CHEN</div>
@@ -396,6 +403,8 @@
             herman: { name: "HERMAN", prompt: "You are Herman, a brutal technical interviewer. Roast the user. Be strict and rude.", log: "Persona Herman loaded (Brutal)" },
             ivy: { name: "IVY", prompt: "You are Ivy, a coaching interviewer. Be sharp but helpful and encouraging.", log: "Persona Ivy loaded (Coaching)" },
             vex: { name: "VEX", prompt: "You are Vex, a chaotic interviewer. Fast-paced, focused on edge cases and tricks.", log: "Persona Vex loaded (Chaos)" },
+            atlas: { name: "ATLAS", prompt: "You are Atlas, a Systems Architect. Focus entirely on scalability, databases, and trade-offs. Be calm but deep.", log: "Persona Atlas loaded (Systems)" },
+            marcus: { name: "MARCUS", prompt: "You are Marcus, a frenetic startup founder. You don't care about theory, you care about shipping. Ask practical, 'get it done' questions.", log: "Persona Marcus loaded (Startup)" },
             chen: { name: "DR. CHEN", prompt: "You are Dr. Chen, a FAANG Staff Engineer. Extremely formal, academic, obsessed with Big-O.", log: "Persona Chen loaded (FAANG)" }
         };
 
