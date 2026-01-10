@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full w-full bg-black">
 <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6ZC7GKD03X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-6ZC7GKD03X');
+    </script>
+
     <meta charset="UTF-8">
-    <!-- FIX: safe-area + stable viewport units for mobile (prevents header getting cut off) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>ANTERVIEW | EVENT HORIZON [PRO]</title>
+    <title style="margin-top: 50px;">ANTERVIEW | EVENT HORIZON [PRO]</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@100;400;700;800&display=swap" rel="stylesheet">
-
     <style>
         :root {
             --neon-cyan: #00f5ff;
@@ -20,7 +26,6 @@
             --border: rgba(255, 255, 255, 0.1);
         }
 
-        /* FIX: allow page to scroll on small screens so header/content can't get clipped by mobile UI bars */
         html, body { height: 100%; }
         body {
             font-family: 'Space Grotesk', sans-serif;
@@ -33,19 +38,16 @@
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
-        /* Stable viewport height units for mobile (iOS/Android address bar) */
-        .svh {
-            min-height: 100svh;
-        }
-        @supports (height: 100dvh) {
-            .svh { min-height: 100dvh; }
-        }
+
+        .svh { min-height: 100svh; }
+        @supports (height: 100dvh) { .svh { min-height: 100dvh; } }
 
         .mono { font-family: 'JetBrains Mono', monospace; }
 
         .scanlines {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 2px, 3px 100%;
             opacity: 0.6;
             pointer-events: none;
@@ -87,7 +89,6 @@
 
         .theme-scroll::-webkit-scrollbar { height: 0px; background: transparent; }
 
-        /* ===== ADDED: PERSONALITY DOCK ===== */
         .persona-scroll::-webkit-scrollbar { height: 0px; background: transparent; }
         .persona-card {
             min-width: 210px;
@@ -140,9 +141,7 @@
             -webkit-overflow-scrolling: touch;
         }
         .persona-strip > .persona-card { scroll-snap-align: start; }
-        .persona-fade {
-            position: relative;
-        }
+        .persona-fade { position: relative; }
         .persona-fade:before, .persona-fade:after {
             content: "";
             position: absolute;
@@ -161,7 +160,6 @@
             background: linear-gradient(270deg, rgba(10,11,15,0.95), rgba(10,11,15,0));
         }
 
-        /* ===== ADDED: TOASTS ===== */
         #toast-layer {
             position: fixed;
             top: calc(18px + env(safe-area-inset-top));
@@ -227,7 +225,6 @@
             transform-origin: left center;
         }
 
-        /* ===== ADDED: LANGUAGE DOCK ===== */
         .lang-card {
             min-width: 180px;
             background: rgba(0,0,0,0.35);
@@ -252,26 +249,73 @@
         .lang-flag { font-size: 18px; line-height: 1; }
         .lang-name { font-weight: 800; font-size: 12px; letter-spacing: 0.02em; }
         .lang-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: 0.75; margin-top: 2px; }
+
+        /* ===== MOBILE DISCORD-STYLE DRAWER ===== */
+        .mobile-drawer{
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 9998;
+          background: rgba(10, 11, 15, 0.88);
+          backdrop-filter: blur(18px);
+          -webkit-backdrop-filter: blur(18px);
+          border-top: 1px solid rgba(255,255,255,0.10);
+          box-shadow: 0 -20px 60px rgba(0,0,0,0.55);
+          transform: translateY(calc(100% - 64px - env(safe-area-inset-bottom)));
+          transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+          padding-bottom: env(safe-area-inset-bottom);
+          touch-action: none;
+        }
+        .mobile-drawer.open-mid{
+          transform: translateY(calc(100% - 260px - env(safe-area-inset-bottom)));
+        }
+        .mobile-drawer.open-max{
+          transform: translateY(calc(100% - (80svh) - env(safe-area-inset-bottom)));
+        }
+        .mobile-drawer-handle{
+          padding: 10px 14px 8px 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          cursor: grab;
+          user-select: none;
+        }
+        .mobile-drawer-handle:active{ cursor: grabbing; }
+        .mobile-drawer-pill{
+          width: 56px;
+          height: 5px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.22);
+          box-shadow: 0 0 18px rgba(0,245,255,0.08);
+        }
+        .mobile-drawer-title{
+          font-size: 10px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          opacity: 0.75;
+          color: #cbd5e1;
+        }
+        .mobile-drawer-body{
+          padding: 10px 14px 14px 14px;
+        }
     </style>
 </head>
 
-<!-- FIX: use stable viewport height container + allow scrolling -->
-<body class="flex items-center justify-center svh w-screen">
+<body class="flex items-start justify-center svh w-screen">
     <div class="scanlines"></div>
     <canvas id="starfield" class="fixed inset-0 z-0 opacity-80"></canvas>
 
-    <!-- FIX: safe-area top so mobile notch doesn’t clip -->
     <div class="fixed top-6 right-6 z-50 flex gap-4" style="top: calc(1.5rem + env(safe-area-inset-top)); right: calc(1.5rem + env(safe-area-inset-right));">
         <button onclick="toggleAudio()" id="audio-btn" class="text-xs font-mono text-cyan-500 border border-cyan-500/30 px-3 py-1 hover:bg-cyan-500/10 transition-colors">[AUDIO: OFF]</button>
     </div>
 
-    <!-- FIX: responsive layout so setup header never gets clipped on mobile -->
     <section id="setup-view" class="relative z-10 w-full max-w-4xl flex flex-col md:flex-row gap-6 md:gap-8 p-4 md:p-4 pb-10"
              style="padding-top: calc(1rem + env(safe-area-inset-top));">
         <div class="flex-1 glass-panel p-6 md:p-10 rounded-lg relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
 
-            <!-- FIX: responsive headline sizing -->
             <h1 class="text-4xl md:text-5xl font-bold tracking-tighter mb-2 leading-none break-words">
                 ANTERVIEW<span class="text-cyan-400">.OS</span>
             </h1>
@@ -279,6 +323,10 @@
 
             <div class="space-y-6" id="setup-stack">
                 <div>
+                    <button id="login-btn-trigger" onclick="document.getElementById('auth-modal').showModal()" class="absolute top-6 right-6 text-[10px] mono text-cyan-500 border border-cyan-500/30 px-3 py-1 hover:bg-cyan-500/10 transition-colors rounded">
+                        [LOGIN]
+                    </button>
+
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Target Vector (Job Title)</label>
                     <input id="job-title" type="text" placeholder="e.g. Senior Solidity Engineer" class="sci-input">
                 </div>
@@ -324,7 +372,8 @@
 
     <main id="chat-view" class="fixed inset-0 z-20 hidden flex flex-col items-center justify-center p-4"
           style="padding-top: calc(1rem + env(safe-area-inset-top)); padding-bottom: calc(1rem + env(safe-area-inset-bottom));">
-        <div class="w-full max-w-5xl h-[85vh] glass-panel rounded-lg flex overflow-hidden shadow-2xl border-t border-cyan-500/50">
+        <div class="w-full max-w-5xl glass-panel rounded-lg flex overflow-hidden shadow-2xl border-t border-cyan-500/50"
+             style="height: calc(100svh - 2.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));">
 
             <div class="w-64 bg-black/40 border-r border-white/5 p-6 flex flex-col gap-6 hidden md:flex">
                 <div>
@@ -452,7 +501,6 @@
     <div id="toast-layer"></div>
 
     <script>
-        /* FIX: iOS mobile hates AudioContext created before a gesture. Create lazily. */
         let audioCtx = null;
         let audioEnabled = false;
 
@@ -581,7 +629,6 @@
             if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat", payload);
 
             try {
-                /* FIX: proper headers + res.ok handling (prevents silent crashes) */
                 const res = await fetch("/.netlify/functions/chat", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -776,8 +823,6 @@
         }
     </script>
 
-    <!-- ===== everything below is unchanged from your original (dev console, themes, toasts, persona/lang docks, patch) ===== -->
-
     <script>
         let selectedMode = 'free';
 
@@ -875,8 +920,6 @@
             playTone(400, 'square', 0.1);
             setTimeout(() => playTone(600, 'square', 0.1), 100);
             setTimeout(() => playTone(800, 'square', 0.2), 200);
-
-           
         }
     </script>
 
@@ -1294,10 +1337,6 @@ RULES:
         })();
     </script>
 
-    <!-- ============================
-         ANTERVIEW: ADD-ONLY POWER PATCH
-         (your patch is unchanged)
-    ============================= -->
     <script>
     (function(){
       const $ = (q, root=document)=>root.querySelector(q);
@@ -1442,8 +1481,6 @@ Always:
 
         return clamp(d, -12, 18);
       }
-
-      function theoryComplete(){ return PATCH.theoryScore >= 5; }
 
       function initAutoScrollLock(){
         const sc = document.getElementById("chat-scroll");
@@ -1592,8 +1629,6 @@ Always:
         });
       }
 
-      /* (rest of your patch continues exactly as you had it) */
-
       function boot(){
         initAutoScrollLock();
         initTelemetry();
@@ -1603,6 +1638,223 @@ Always:
 
       if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
       else boot();
+    })();
+    </script>
+
+    <dialog id="auth-modal" class="bg-transparent p-0 backdrop:bg-black/80 backdrop:backdrop-blur-sm transition-all duration-300">
+        <div class="glass-panel w-full max-w-md p-8 rounded-xl border border-white/10 relative overflow-hidden shadow-[0_0_50px_rgba(0,245,255,0.1)]">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50 animate-pulse"></div>
+
+            <div class="mb-8 text-center">
+                <h2 class="text-2xl font-bold tracking-tighter text-white mb-1">IDENTIFY<span class="text-cyan-400">.USER</span></h2>
+                <p class="text-[10px] mono text-slate-500 uppercase tracking-widest">Secure Connection Required</p>
+            </div>
+
+            <form method="dialog" class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">>> OPERATIVE_ID</label>
+                    <input type="email" placeholder="agent@eventhorizon.corp" class="sci-input w-full bg-black/40 focus:border-cyan-400 transition-colors">
+                </div>
+
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">>> PASSCODE</label>
+                    <input id="login-pass" type="password" placeholder="••••••••••••" class="sci-input w-full bg-black/40 focus:border-cyan-400 transition-colors">
+                </div>
+
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="document.getElementById('auth-modal').close()" class="flex-1 py-3 text-[10px] font-bold border border-white/10 hover:bg-white/5 rounded text-slate-400 transition-colors">CANCEL</button>
+                    <button type="button" onclick="attemptLogin()" class="flex-1 sci-btn text-[10px] tracking-widest">AUTHENTICATE</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <script>
+        function attemptLogin() {
+            const passInput = document.getElementById('login-pass');
+            const SECRET = "horizon";
+
+            if (passInput.value === SECRET) {
+                localStorage.setItem('anterview_status', 'premium');
+                alert("ACCESS GRANTED :: WELCOME COMMANDER");
+                location.reload();
+            } else {
+                alert("ACCESS DENIED :: INVALID PASSCODE");
+                passInput.value = "";
+                passInput.style.borderColor = "red";
+            }
+        }
+
+        (function checkPremium() {
+            if (localStorage.getItem('anterview_status') === 'premium') {
+                console.log("SYSTEM: PREMIUM ACTIVE");
+
+                const proCard = document.getElementById('pro-card');
+                if (proCard) {
+                    proCard.className = "p-4 border border-purple-500 bg-purple-900/20 rounded cursor-pointer hover:bg-purple-900/40 transition-all duration-300";
+                    proCard.setAttribute('onclick', "selectMode(this, 'pro')");
+
+                    const badge = proCard.querySelector('.locked-badge');
+                    if(badge) {
+                        badge.innerText = "UNLOCKED";
+                        badge.style.background = "#a855f7";
+                    }
+
+                    const title = proCard.querySelector('.text-slate-500');
+                    if(title) title.className = "text-purple-400 font-bold text-sm mb-1";
+                }
+
+                const btn = document.getElementById('login-btn-trigger');
+                if(btn) {
+                    btn.innerHTML = "[LOGOUT]";
+                    btn.onclick = function() {
+                        if(confirm("TERMINATE SESSION?")) {
+                            localStorage.removeItem('anterview_status');
+                            location.reload();
+                        }
+                    };
+                }
+            }
+        })();
+    </script>
+
+    <!-- MOBILE PULL TAB (Discord-style) -->
+    <div id="mobile-drawer" class="mobile-drawer md:hidden">
+      <div id="mobile-drawer-handle" class="mobile-drawer-handle" aria-label="Pull drawer">
+        <div class="mobile-drawer-pill"></div>
+        <div class="mobile-drawer-title mono">STATUS PANEL</div>
+      </div>
+
+      <div class="mobile-drawer-body">
+        <div class="glass-panel rounded-lg p-4 border border-white/10" style="background: rgba(0,0,0,0.22);">
+          <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2" id="m-stress-label">Stress Monitor</div>
+          <div class="stress-container rounded-full">
+            <div id="stress-bar-mobile" class="stress-fill"></div>
+          </div>
+          <div class="flex justify-between mt-1 text-[8px] mono text-slate-500">
+            <span>CALM</span><span>PANIC</span>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-lg p-4 border border-white/10 mt-3" style="background: rgba(0,0,0,0.22);">
+          <div class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2" id="m-progress-label">Question Progress</div>
+          <div class="text-4xl font-bold text-white mono" id="q-counter-mobile">01<span class="text-lg text-slate-600">/05</span></div>
+        </div>
+
+        <div class="glass-panel rounded-lg p-4 border border-red-500/20 mt-3 bg-red-500/10">
+          <div class="text-[9px] text-red-400 font-bold mb-1" id="m-feedback-label">LIVE FEEDBACK</div>
+          <div class="text-[10px] text-red-300 opacity-70 mono" id="m-feedback-text">"Stop hesitating. Your typing speed suggests uncertainty."</div>
+        </div>
+
+        <div class="mt-4 flex gap-2">
+          <button id="drawer-min" class="flex-1 text-[10px] mono text-cyan-500 border border-cyan-500/30 px-3 py-2 hover:bg-cyan-500/10 transition-colors rounded">MIN</button>
+          <button id="drawer-mid" class="flex-1 text-[10px] mono text-cyan-500 border border-cyan-500/30 px-3 py-2 hover:bg-cyan-500/10 transition-colors rounded">MID</button>
+          <button id="drawer-max" class="flex-1 text-[10px] mono text-cyan-500 border border-cyan-500/30 px-3 py-2 hover:bg-cyan-500/10 transition-colors rounded">MAX</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      const drawer = document.getElementById("mobile-drawer");
+      if(!drawer) return;
+
+      const handle = document.getElementById("mobile-drawer-handle");
+      const minBtn = document.getElementById("drawer-min");
+      const midBtn = document.getElementById("drawer-mid");
+      const maxBtn = document.getElementById("drawer-max");
+
+      function syncUI(){
+        const desktopStress = document.getElementById("stress-bar");
+        const mobileStress = document.getElementById("stress-bar-mobile");
+        if(desktopStress && mobileStress){
+          mobileStress.style.width = desktopStress.style.width || "0%";
+          mobileStress.style.background = getComputedStyle(desktopStress).backgroundColor || "";
+        }
+
+        const qc = document.getElementById("q-counter");
+        const qcm = document.getElementById("q-counter-mobile");
+        if(qc && qcm) qcm.innerHTML = qc.innerHTML;
+      }
+      setInterval(syncUI, 250);
+
+      if(typeof window.updateStress === "function" && !window.__stressMirror){
+        const _updateStress = window.updateStress;
+        window.updateStress = function(amount){
+          const r = _updateStress(amount);
+          syncUI();
+          return r;
+        };
+        window.__stressMirror = true;
+      }
+
+      const setState = (s)=>{
+        drawer.classList.remove("open-mid","open-max");
+        if(s==="mid") drawer.classList.add("open-mid");
+        if(s==="max") drawer.classList.add("open-max");
+      };
+      minBtn && minBtn.addEventListener("click", ()=>setState("min"));
+      midBtn && midBtn.addEventListener("click", ()=>setState("mid"));
+      maxBtn && maxBtn.addEventListener("click", ()=>setState("max"));
+
+      let startY = 0;
+      let startT = 0;
+      let dragging = false;
+
+      const getTranslateY = ()=>{
+        const m = getComputedStyle(drawer).transform;
+        if(m && m !== "none"){
+          const v = m.match(/matrix\(([^)]+)\)/);
+          if(v){
+            const parts = v[1].split(",").map(x=>parseFloat(x.trim()));
+            return parts[5] || 0;
+          }
+        }
+        return 0;
+      };
+
+      function onDown(e){
+        dragging = true;
+        drawer.style.transition = "none";
+        startY = (e.touches ? e.touches[0].clientY : e.clientY);
+        startT = getTranslateY();
+      }
+
+      function onMove(e){
+        if(!dragging) return;
+        const y = (e.touches ? e.touches[0].clientY : e.clientY);
+        const dy = y - startY;
+        const next = startT + dy;
+        drawer.style.transform = `translateY(${next}px)`;
+        e.preventDefault();
+      }
+
+      function onUp(){
+        if(!dragging) return;
+        dragging = false;
+        drawer.style.transition = "";
+
+        const y = getTranslateY();
+        if(y > window.innerHeight * 0.55) setState("min");
+        else if(y > window.innerHeight * 0.25) setState("mid");
+        else setState("max");
+      }
+
+      handle.addEventListener("mousedown", onDown);
+      window.addEventListener("mousemove", onMove, {passive:false});
+      window.addEventListener("mouseup", onUp);
+
+      handle.addEventListener("touchstart", onDown, {passive:true});
+      window.addEventListener("touchmove", onMove, {passive:false});
+      window.addEventListener("touchend", onUp);
+
+      const chatView = document.getElementById("chat-view");
+      const tick = ()=>{
+        const chatVisible = chatView && !chatView.classList.contains("hidden") && chatView.style.display !== "none";
+        if(chatVisible) setState("mid");
+        else setState("min");
+      };
+      setTimeout(tick, 400);
     })();
     </script>
 
