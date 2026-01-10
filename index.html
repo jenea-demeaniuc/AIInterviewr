@@ -624,7 +624,8 @@
         }
 
         async function callAI(msg) {
-            const payload = { messages: history, stressLevel: stress };
+            const payload = { messages: history, stressLevel: stress, wantTTS: audioEnabled };
+
 
             if(isGodMode) logNetwork("REQ", "POST /.netlify/functions/chat", payload);
 
@@ -655,12 +656,20 @@
                 inputEl.disabled = false; inputEl.focus();
 
                 if(reply.includes("[END]")) {
-                    endGame();
-                } else {
-                    history.push({role: "assistant", content: reply});
-                    typewriter(reply);
-                    if(reply.length > 200) updateStress(10);
-                }
+    endGame();
+} else {
+    history.push({role: "assistant", content: reply});
+    typewriter(reply);
+
+    // 🔊 PLAY VOICE HERE
+    if (audioEnabled && data.audio) {
+        const a = new Audio("data:audio/mp3;base64," + data.audio);
+        a.play().catch(()=>{});
+    }
+
+    if(reply.length > 200) updateStress(10);
+}
+
 
             } catch(e) {
                 console.error(e);
